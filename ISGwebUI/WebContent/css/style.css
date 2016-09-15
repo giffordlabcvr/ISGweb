@@ -48,7 +48,13 @@ a {
     border-top-color: #008cba;
 }
 
-
 .display-hide {
    display: none;
 }
+
+.normal {
+}
+
+.tbl-results td { white-space: nowrap; }
+
+.tbl-results th { white-space: nowrap; }

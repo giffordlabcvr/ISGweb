@@ -1,13 +1,18 @@
 package uk.ac.cvr.isgweb.model;
 
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.json.JsonValue;
 
 public class OrthoCluster {
 
 	private String orthoClusterID;
-	private Map<Species, List<SpeciesGene>> speciesToGenes = new LinkedHashMap<Species, List<SpeciesGene>>();
+	private String orthoClusterIDShort = null;
+	
+	// key is species enum ordinal
+	private Map<Species, List<SpeciesGene>> speciesToGenes = new EnumMap<Species, List<SpeciesGene>>(Species.class);
 
 	public OrthoCluster(String orthoClusterID) {
 		super();
@@ -20,6 +25,16 @@ public class OrthoCluster {
 
 	public Map<Species, List<SpeciesGene>> getSpeciesToGenes() {
 		return speciesToGenes;
+	}
+
+	public String getOrthoClusterIDShort() {
+		if(orthoClusterIDShort == null) {
+			orthoClusterIDShort = orthoClusterID.replaceAll("_ortho", "");
+			for(Species species: Species.values()) {
+				orthoClusterIDShort = orthoClusterIDShort.replaceAll(species.name(), species.getAbbreviation());
+			}
+		}
+		return orthoClusterIDShort;
 	}
 	
 }

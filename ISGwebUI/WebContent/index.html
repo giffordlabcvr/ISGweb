@@ -48,7 +48,7 @@
 		</p>
 		<h3>Search criteria</h3>
 			<div ng-show="criteria.length == 0">No search criteria selected</div>
-			<table ng-show="criteria.length > 0" class="table">
+			<table ng-show="criteria.length > 0" class="table table-bordered">
 				<thead>
 					<td><b>Present/Absent</b></td>
 					<td><b>Species</b></td>
@@ -64,7 +64,34 @@
 		
 		<button type="button" class="btn btn-primary btn-xs" 
 			ng-click="runQuery()">Run query</button>
-		
+			<div ng-show="resultRows">
+			<h3>Results</h3>
+			<div ng-show="resultRows.length == 0">No results</div>
+			<table ng-show="resultRows.length > 0" class="table table-bordered tbl-results">
+				<thead>
+					<th>Orthologous cluster ID</th>
+					<th>Species</th>
+					<th>ENSEMBL ID</th>
+					<th>Gene</th>
+					<th><em>dn/ds</em> Ratio</em></th>
+					<th><em>log<sub>2</sub></em> Fold Change</em></th>
+					<th>FDR</em></th>
+					<th>Percent identity</em></th>
+				</thead>		
+				<tbody>
+					<tr class="{{resultRow.rowClass}}" ng-repeat="resultRow in resultRows track by $index">
+						<td ng-show="resultRow.orthoClusterId" rowSpan="{{resultRow.numRowsInCluster}}">{{resultRow.orthoClusterId}}</td>
+						<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
+						<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
+						<td>{{resultRow.geneName}}</td>
+						<td>{{resultRow.dndsRatio}}</td>
+						<td>{{resultRow.log2fc}}</td>
+						<td>{{resultRow.fdr}}</td>
+						<td>{{resultRow.percId}}</td>
+					</tr>
+				</tbody>	
+			</table>
+		</div>
 	</div>
 
 </div>
