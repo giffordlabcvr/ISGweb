@@ -9,6 +9,8 @@ public class SpeciesGene {
 	private Double percentIdentity;
 	private Double log2foldChange;
 	private Double fdr;
+	private Boolean isDifferentiallyExpressed = true;
+	private Boolean anyHomology;
 	
 	public Species getSpecies() {
 		return species;
@@ -51,6 +53,18 @@ public class SpeciesGene {
 	}
 	public void setFdr(Double fdr) {
 		this.fdr = fdr;
+	}
+	public Boolean getIsDifferentiallyExpressed() {
+		return isDifferentiallyExpressed;
+	}
+	public void setIsDifferentiallyExpressed(Boolean isDifferentiallyExpressed) {
+		this.isDifferentiallyExpressed = isDifferentiallyExpressed;
+	}
+	public Boolean getAnyHomology() {
+		return anyHomology;
+	}
+	public void setAnyHomology(Boolean anyHomology) {
+		this.anyHomology = anyHomology;
 	}
 	
 	

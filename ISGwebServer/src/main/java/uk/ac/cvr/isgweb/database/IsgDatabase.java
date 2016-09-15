@@ -137,12 +137,78 @@ public class IsgDatabase {
 	}
 
 	private enum SpeciesGeneField {
-		ensembleId("ENSEMBL_ID"),
-		geneName("Gene name"),
-		dnDsRatio("dnds_ratio"),
-		percentIdentity("perc_id"),
-		log2foldChange("Log2FC"),
-		fdr("FDR");
+		ensembleId("ENSEMBL_ID") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				if(cellValue.equals("No other Ensembl ortholog")) {
+					return;
+				}
+				speciesGene.setEnsembleId(cellValue);
+			}
+		},
+		geneName("Gene name") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				speciesGene.setGeneName(cellValue);
+			}
+		},
+		dnDsRatio("dnds_ratio") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				if(cellValue.equals("no homology")) {
+					return;
+				}
+				speciesGene.setAnyHomology(true);
+				speciesGene.setDnDsRatio(Double.parseDouble(cellValue));
+			}
+		},
+		percentIdentity("perc_id") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				if(cellValue.equals(speciesGene.getEnsembleId())) {
+					return;
+				}
+				speciesGene.setPercentIdentity(Double.parseDouble(cellValue));
+			}
+		},
+		log2foldChange("Log2FC") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				if(cellValue.equals("Not differentially expressed")) {
+					speciesGene.setIsDifferentiallyExpressed(false);
+					return;
+				}
+				speciesGene.setLog2foldChange(Double.parseDouble(cellValue));
+			}
+		},
+		fdr("FDR") {
+			@Override
+			public void processCellValue(SpeciesGene speciesGene, String cellValue) {
+				if(nullValue(cellValue)) {
+					return;
+				}
+				if(cellValue.startsWith("Not differentially expresse")) {
+					speciesGene.setIsDifferentiallyExpressed(false);
+					return;
+				}
+				speciesGene.setFdr(Double.parseDouble(cellValue));
+			}
+		};
 
 		private String columnSuffix;
 		
@@ -150,10 +216,11 @@ public class IsgDatabase {
 			this.columnSuffix = columnSuffix;
 		}
 
-		public void processCellValue(SpeciesGene speciesGene, String string) {
-			// TODO Auto-generated method stub
-			
+		protected boolean nullValue(String cellValue) {
+			return cellValue == null || cellValue.length() == 0 || cellValue.equals("NA") || cellValue.equals("N/A") || cellValue.equals("n/a");
 		}
+
+		public abstract void processCellValue(SpeciesGene speciesGene, String cellValue);
 		
 	}
 	
