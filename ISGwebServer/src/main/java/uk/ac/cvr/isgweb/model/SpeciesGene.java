@@ -10,7 +10,7 @@ public class SpeciesGene {
 	private Double log2foldChange;
 	private Double fdr;
 	private Boolean isDifferentiallyExpressed = true;
-	private Boolean anyHomology;
+	private Boolean anyHomology = true;
 	
 	public Species getSpecies() {
 		return species;

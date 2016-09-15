@@ -37,7 +37,6 @@ public class JsonUtils {
 		}
 		return sw.toString();
 	}
-	
 
 	public static JsonObject stringToJsonObject(String string) {
 		return Json.createReader(new StringReader(string)).readObject();

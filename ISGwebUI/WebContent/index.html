@@ -25,9 +25,45 @@
 
 	<div ng-controller="isgWebAppCtrl">
 		<h2>CVR ISG database</h2>
+		<p>
+		Orthologous clusters of interferon-stimulated genes (ISGs) across multiple species.
+		</p>
+		
+		<p>
+			<div class="btn-group">
+				<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+					ng-model="selectedPresence" btn-radio="'PRESENT'">Present</label>
+				<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+					ng-model="selectedPresence" btn-radio="'ABSENT'">Absent</label>
+			</div>
+		
+			<select ng-disable="!species"
+					ng-model="selectedSpecies"
+					ng-options="aSpecies.displayName for aSpecies in species">
+			</select>
+			<button type="button" class="btn btn-primary btn-xs" 
+				ng-click="addCriterion()">Add criterion</button>
+			<button type="button" class="btn btn-primary btn-xs" 
+				ng-click="clearCriteria()">Clear criteria</button>
+		</p>
+		<h3>Search criteria</h3>
+			<div ng-show="criteria.length == 0">No search criteria selected</div>
+			<table ng-show="criteria.length > 0" class="table">
+				<thead>
+					<td><b>Present/Absent</b></td>
+					<td><b>Species</b></td>
+				</thead>		
+				<tbody>
+					<tr ng-repeat="criterion in criteria track by $index">
+						<td>{{criterion.presence == 'PRESENT' ? 'Present' : 'Absent'}}</td>
+						<td>{{species[criterion.speciesId].displayName}}</td>
+					</tr>
+				</tbody>	
+			</table>
+		
 		
 		<button type="button" class="btn btn-primary btn-xs" 
-			ng-click="update()">Update</button>
+			ng-click="runQuery()">Run query</button>
 		
 	</div>
 

@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 
@@ -165,9 +167,9 @@ public class IsgDatabase {
 					return;
 				}
 				if(cellValue.equals("no homology")) {
+					speciesGene.setAnyHomology(false);
 					return;
 				}
-				speciesGene.setAnyHomology(true);
 				speciesGene.setDnDsRatio(Double.parseDouble(cellValue));
 			}
 		},
@@ -222,6 +224,14 @@ public class IsgDatabase {
 
 		public abstract void processCellValue(SpeciesGene speciesGene, String cellValue);
 		
+	}
+
+	public List<OrthoCluster> query(List<Criterion> criteria) {
+		Stream<OrthoCluster> orthoClusterStream = orthoClusterIndex.values().stream();
+		for(Criterion criterion: criteria) {
+			orthoClusterStream = orthoClusterStream.filter(criterion::orthoClusterMatches);
+		}
+		return orthoClusterStream.collect(Collectors.toList());
 	}
 	
 	
