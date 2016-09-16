@@ -233,6 +233,18 @@ public class IsgDatabase {
 		}
 		return orthoClusterStream.collect(Collectors.toList());
 	}
+
+	public List<OrthoCluster> query(List<SpeciesRequirement> speciesRequirements, GeneRegulationParams geneRegulationParams) {
+		Stream<OrthoCluster> orthoClusterStream = orthoClusterIndex.values().stream();
+		for(SpeciesRequirement speciesRequirement: speciesRequirements) {
+			orthoClusterStream = orthoClusterStream.filter(cluster -> {
+				return speciesRequirement.orthoClusterMeetsRequirement(geneRegulationParams, cluster);	
+			});
+		}
+		return orthoClusterStream.collect(Collectors.toList());
+	}
+
+	
 	
 	
 }

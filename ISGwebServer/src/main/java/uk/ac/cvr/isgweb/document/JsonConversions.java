@@ -9,6 +9,8 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.stream.JsonGenerator;
 
+import uk.ac.cvr.isgweb.database.GeneRegulationParams;
+import uk.ac.cvr.isgweb.database.SpeciesRequirement;
 import uk.ac.cvr.isgweb.database.Criterion;
 import uk.ac.cvr.isgweb.database.Criterion.Presence;
 import uk.ac.cvr.isgweb.database.Criterion.SpeciesCategory;
@@ -116,4 +118,27 @@ public class JsonConversions {
 		
 	}
 
+	
+	public static SpeciesRequirement speciesRequirementFromJsonObj(JsonObject specReqJsonObj) {
+		SpeciesRequirement speciesRequirement = new SpeciesRequirement();
+		speciesRequirement.setSpecies(Species.valueOf(specReqJsonObj.getString("species")));
+		speciesRequirement.setRequireUpregulated(specReqJsonObj.getBoolean("requireUpregulated"));
+		speciesRequirement.setRequireNotUpregulated(specReqJsonObj.getBoolean("requireNotUpregulated"));
+		speciesRequirement.setRequireDownregulated(specReqJsonObj.getBoolean("requireDownregulated"));
+		speciesRequirement.setRequireNotDownregulated(specReqJsonObj.getBoolean("requireNotDownregulated"));
+		speciesRequirement.setRequirePresent(specReqJsonObj.getBoolean("requirePresent"));
+		speciesRequirement.setRequireAbsent(specReqJsonObj.getBoolean("requireAbsent"));
+		return speciesRequirement;
+	}
+
+	public static GeneRegulationParams queryExpressionParametersFromJsonObj(JsonObject queryExprJsonObj) {
+		GeneRegulationParams geneRegulationParams = new GeneRegulationParams();
+		geneRegulationParams.setUpregulatedMinLog2FoldChange(queryExprJsonObj.getJsonNumber("upregulatedMinLog2FoldChange").doubleValue());
+		geneRegulationParams.setDownregulatedMaxLog2FoldChange(queryExprJsonObj.getJsonNumber("downregulatedMaxLog2FoldChange").doubleValue());
+		geneRegulationParams.setMaxFDR(queryExprJsonObj.getJsonNumber("maxFDR").doubleValue());
+		return geneRegulationParams;
+	}
+
+	
+	
 }
