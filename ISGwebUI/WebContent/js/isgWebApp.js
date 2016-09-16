@@ -12,6 +12,10 @@ function ($scope, $http, dialogs) {
 	  $scope.selectedSpeciesCategory = 'ANY';
 	  $scope.criteria = [];
 	  
+	  $scope.availableClustersPerPage = [10,25,100,500];
+	  
+	  $scope.clustersPerPage = $scope.availableClustersPerPage[0];
+	  
 	  
 	  $scope.resetDifferentialExpression = function() {
 		  $scope.includeUpregulated = true;
@@ -109,6 +113,9 @@ function ($scope, $http, dialogs) {
 		  return criterion.includeNotDifferentiallyExpressed ? 'Yes' : 'No';
 	  }
 
+	  $scope.setAvailableClustersPerPage = function(newValue) {
+		  $scope.clustersPerPage = newValue;
+	  }
 	  
 	  $scope.addCriterion = function() {
 		  var criterion = { 

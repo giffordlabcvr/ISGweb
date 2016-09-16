@@ -55,11 +55,11 @@
 							</div>
 							<div class='row query-row'>
 
-								<div class="btn-group" dropdown is-open="status.isopen">
-								      <button id="single-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+								<div class="btn-group" dropdown is-open="status.isopen_species">
+								      <button id="species-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
 								        {{renderSpeciesCategory()}} <span class="caret"></span>
 								      </button>
-								      <ul class="dropdown-menu" role="menu" aria-labelledby="single-button">
+								      <ul class="dropdown-menu" role="menu" aria-labelledby="species-button">
 								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ANY', null)">Any species</a></li>
 								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ALL', null)">All species</a></li>
 								        <li ng-show="selectedPresence == 'PRESENT'" class="divider"></li>
@@ -126,33 +126,46 @@
 			<button type="button" class="btn btn-default" 
 				ng-click="runQuery()">Run query</button>
 			<div ng-show="resultRows">
-			<h3>Results</h3>
-			<div ng-show="resultRows.length == 0">No results</div>
-			<table ng-show="resultRows.length > 0" class="table table-bordered tbl-results">
-				<thead>
-					<th>Orthologous cluster ID</th>
-					<th>Species</th>
-					<th>ENSEMBL ID</th>
-					<th>Gene</th>
-					<th><em>dn/ds</em> Ratio</em></th>
-					<th><em>log<sub>2</sub></em> Fold Change</em></th>
-					<th>FDR</em></th>
-					<th>Percent identity</em></th>
-				</thead>		
-				<tbody>
-					<tr class="{{resultRow.rowClass}}" ng-repeat="resultRow in resultRows track by $index">
-						<td ng-show="resultRow.orthoClusterId" rowSpan="{{resultRow.numRowsInCluster}}">{{resultRow.orthoClusterId}}</td>
-						<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
-						<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
-						<td>{{resultRow.geneName}}</td>
-						<td>{{resultRow.dndsRatio}}</td>
-						<td>{{resultRow.log2fc}}</td>
-						<td>{{resultRow.fdr}}</td>
-						<td>{{resultRow.percId}}</td>
-					</tr>
-				</tbody>	
-			</table>
-		</div>
+				<h3>Results</h3>
+				<div ng-show="resultRows.length == 0">No results</div>
+				<div ng-show="resultRows.length > 0">
+					<div class="btn-group" dropdown is-open="status.isopen_numclusters">
+						Clusters per page:
+				      <button id="numclusters-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+				        {{clustersPerPage}} <span class="caret"></span>
+				      </button>
+				      <ul class="dropdown-menu" role="menu" aria-labelledby="numclusters-button">
+				        <li ng-repeat="availableClustersPerPageValue in availableClustersPerPage" ng-click="setAvailableClustersPerPage(availableClustersPerPageValue)" role="menuitem"><a href="#">
+				        	{{availableClustersPerPageValue}}</a></li>
+				      </ul>
+					</div>
+
+					<table class="table table-bordered tbl-results">
+						<thead>
+							<th>Orthologous cluster ID</th>
+							<th>Species</th>
+							<th>ENSEMBL ID</th>
+							<th>Gene</th>
+							<th><em>dn/ds</em> Ratio</em></th>
+							<th><em>log<sub>2</sub></em> Fold Change</em></th>
+							<th>FDR</em></th>
+							<th>Percent identity</em></th>
+						</thead>		
+						<tbody>
+							<tr class="{{resultRow.rowClass}}" ng-repeat="resultRow in resultRows track by $index">
+								<td ng-show="resultRow.orthoClusterId" rowSpan="{{resultRow.numRowsInCluster}}">{{resultRow.orthoClusterId}}</td>
+								<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
+								<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
+								<td>{{resultRow.geneName}}</td>
+								<td>{{resultRow.dndsRatio}}</td>
+								<td>{{resultRow.log2fc}}</td>
+								<td>{{resultRow.fdr}}</td>
+								<td>{{resultRow.percId}}</td>
+							</tr>
+						</tbody>	
+					</table>
+				</div>
+		  </div>
 	</div>
 
 </div>
