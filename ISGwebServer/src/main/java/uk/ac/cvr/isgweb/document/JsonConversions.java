@@ -11,6 +11,7 @@ import javax.json.stream.JsonGenerator;
 
 import uk.ac.cvr.isgweb.database.Criterion;
 import uk.ac.cvr.isgweb.database.Criterion.Presence;
+import uk.ac.cvr.isgweb.database.Criterion.SpeciesCategory;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
 import uk.ac.cvr.isgweb.model.SpeciesGene;
@@ -77,16 +78,21 @@ public class JsonConversions {
 	}
 
 	public static Criterion criterionFromJsonObj(JsonObject criterionJsonObj) {
-		String speciesIdString = ((JsonString) criterionJsonObj.get("speciesId")).getString();
-		Species species = Species.valueOf(speciesIdString);
-	
+		String speciesCategoryString = ((JsonString) criterionJsonObj.get("speciesCategory")).getString();
+		SpeciesCategory speciesCategory = SpeciesCategory.valueOf(speciesCategoryString);
+
 		String presenceString = ((JsonString) criterionJsonObj.get("presence")).getString();
 		Presence presence = Presence.valueOf(presenceString);
 	
 		Criterion criterion = new Criterion();
-		criterion.setSpecies(species);
 		criterion.setPresence(presence);
-		
+		criterion.setSpeciesCategory(speciesCategory);
+
+		if(speciesCategory == SpeciesCategory.SPECIFIC) {
+			String speciesIdString = ((JsonString) criterionJsonObj.get("speciesId")).getString();
+			Species species = Species.valueOf(speciesIdString);
+			criterion.setSpecies(species);
+		}
 		return criterion;
 		
 	}

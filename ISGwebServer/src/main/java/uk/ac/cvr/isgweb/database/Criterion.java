@@ -67,26 +67,40 @@ public class Criterion {
 	
 	public boolean orthoClusterMatches(OrthoCluster orthoCluster) {
 		switch(presence) {
-		case PRESENT:
-		{
-			List<SpeciesGene> speciesGenes = orthoCluster.getSpeciesToGenes().get(species);
-			if(speciesGenes == null || speciesGenes.isEmpty()) {
-				return false;
+		case PRESENT: {
+			switch(speciesCategory) {
+			case ALL: {
+				return orthoCluster.getSpeciesToGenes().keySet().size() == Species.values().length;
+			}
+			case ANY: {
+				return !orthoCluster.getSpeciesToGenes().isEmpty();
+			}
+			case SPECIFIC: {
+				List<SpeciesGene> speciesGenes = orthoCluster.getSpeciesToGenes().get(species);
+				return(speciesGenes != null && !speciesGenes.isEmpty());
+			}
 			}
 		}
-		break;
-		case ABSENT:
-		{
-			List<SpeciesGene> speciesGenes = orthoCluster.getSpeciesToGenes().get(species);
-			if(speciesGenes != null && !speciesGenes.isEmpty()) {
-				return false;
+		case ABSENT: {
+			switch(speciesCategory) {
+			case ALL: {
+				return orthoCluster.getSpeciesToGenes().keySet().size() < Species.values().length;
+			}
+			case ANY: {
+				return orthoCluster.getSpeciesToGenes().isEmpty();
+			}
+			case SPECIFIC: {
+				List<SpeciesGene> speciesGenes = orthoCluster.getSpeciesToGenes().get(species);
+				return(speciesGenes == null || speciesGenes.isEmpty());
+			}
 			}
 		}
-		break;
+		default: {
+			throw new RuntimeException("Unexpected fall-through");
 		}
-		return true;
+		}
 	}
-	
+
 	
 	
 }
