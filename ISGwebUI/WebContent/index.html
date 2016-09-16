@@ -24,46 +24,107 @@
 <div class="container" ng-app="isgWebApp">
 
 	<div ng-controller="isgWebAppCtrl">
-		<h2>CVR ISG database</h2>
+		<h2>ISG Cluster Database</h2>
 		<p>
-		Orthologous clusters of interferon-stimulated genes (ISGs) across multiple species.
+		<b>Interferon-stimulated genes</b> (ISGs) are genes whose expression is affected by interferon. 
+		ISGs may be duplicated within the genome of a species, and genes in different species may be orthologous.
+		These related ISGs therefore form <b>orthologous clusters</b>.
 		</p>
-		
 		<p>
-			<div class="btn-group">
-				<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
-					ng-model="selectedPresence" btn-radio="'PRESENT'">Present</label>
-				<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
-					ng-model="selectedPresence" btn-radio="'ABSENT'">Absent</label>
+		Within an orthologous cluster, the effect of interferon varies: some genes are up-regulated, 
+		others down-regulated, still others are not differentially expresssed. 
+		<p>
+		This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
+		For each gene, transcriptomics results for the differential expression of the gene are included.
+		</p>
+		<h3>Query Clusters by Criteria</h3>
+			<p>
+				<div class='table query-table'>
+					<div class='row'>
+						<div class='col-md-5 well query-well'>
+							<div class='row query-row'>
+							Presence / absence in species
+							</div>
+							<div class='row query-row'>
+								<div class="btn-group">
+									<label class="btn btn-default ng-pristine ng-untouched ng-valid active" 
+										ng-model="selectedPresence" btn-radio="'PRESENT'">Present in</label>
+									<label class="btn btn-default ng-pristine ng-untouched ng-valid active" 
+										ng-model="selectedPresence" btn-radio="'ABSENT'">Absent from</label>
+								</div>
+							</div>
+							<div class='row query-row'>
+
+								<div class="btn-group" dropdown is-open="status.isopen">
+								      <button id="single-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+								        {{renderSpeciesCategory()}} <span class="caret"></span>
+								      </button>
+								      <ul class="dropdown-menu" role="menu" aria-labelledby="single-button">
+								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ANY', null)">Any species</a></li>
+								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ALL', null)">All species</a></li>
+								        <li ng-show="selectedPresence == 'PRESENT'" class="divider"></li>
+								        <li ng-repeat="aSpecies in species" ng-click="setSpeciesCategory('SPECIFIC', aSpecies)" role="menuitem"><a href="#">{{aSpecies.displayName}}</a></li>
+								      </ul>
+								</div>
+							</div>		
+						</div>
+
+						<div class='col-md-5 well query-well'>
+							<div class='row query-row'>
+							Differential expression
+							</div>
+							<div class='row query-row'>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeUpregulated" btn-checkbox>Up-regulated</button>
+							</div>
+							<div class='row query-row'>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeDownregulated" btn-checkbox>Down-regulated</button>
+							</div>
+							<div class='row query-row'>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeNotDifferentiallyExpressed" btn-checkbox>Not differentially expressed</button>
+							</div>
+						</div>
+
+
+
+
+						<div class='col-md-1'>
+							<div class='row query-row'>
+							<button type="button" class="btn btn-default" 
+								ng-click="addCriterion()">Add criterion</button>
+							</div>
+							<div class='row query-row'>
+							<button type="button" class="btn btn-default" 
+								ng-click="clearCriteria()">Clear criteria</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</p>
+			<div ng-show="criteria.length == 0">
+				<p>No search criteria selected.</p>
 			</div>
+			<div ng-show="criteria.length > 0" >
+				<p>Clusters will be selected if they meet all of the following criteria:</p>
+				<table class="table table-bordered">
+					<thead>
+						<td><b>Presence / absence in species</b></td>
+						<td><b>Include up-regulated?</b></td>
+						<td><b>Include down-regulated?</b></td>
+						<td><b>Include non-differentially expressed?</b></td>
+					</thead>		
+					<tbody>
+						<tr ng-repeat="criterion in criteria track by $index">
+							<td>{{renderCriterionPresenceAbsenceSpecies(criterion)}}</td>
+							<td>{{renderIncludeUpregulated(criterion)}}</td>
+							<td>{{renderIncludeDownregulated(criterion)}}</td>
+							<td>{{renderIncludeNotDifferentiallyExpressed(criterion)}}</td>
+						</tr>
+					</tbody>	
+				</table>
+			</div>		
 		
-			<select ng-disable="!species"
-					ng-model="selectedSpecies"
-					ng-options="aSpecies.displayName for aSpecies in species">
-			</select>
-			<button type="button" class="btn btn-primary btn-xs" 
-				ng-click="addCriterion()">Add criterion</button>
-			<button type="button" class="btn btn-primary btn-xs" 
-				ng-click="clearCriteria()">Clear criteria</button>
-		</p>
-		<h3>Search criteria</h3>
-			<div ng-show="criteria.length == 0">No search criteria selected</div>
-			<table ng-show="criteria.length > 0" class="table table-bordered">
-				<thead>
-					<td><b>Present/Absent</b></td>
-					<td><b>Species</b></td>
-				</thead>		
-				<tbody>
-					<tr ng-repeat="criterion in criteria track by $index">
-						<td>{{criterion.presence == 'PRESENT' ? 'Present' : 'Absent'}}</td>
-						<td>{{species[criterion.speciesId].displayName}}</td>
-					</tr>
-				</tbody>	
-			</table>
-		
-		
-		<button type="button" class="btn btn-primary btn-xs" 
-			ng-click="runQuery()">Run query</button>
+			<button type="button" class="btn btn-default" 
+				ng-click="runQuery()">Run query</button>
 			<div ng-show="resultRows">
 			<h3>Results</h3>
 			<div ng-show="resultRows.length == 0">No results</div>

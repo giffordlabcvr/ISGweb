@@ -58,3 +58,25 @@ a {
 .tbl-results td { white-space: nowrap; }
 
 .tbl-results th { white-space: nowrap; }
+
+.query-table {
+  padding-left: 15px;
+}
+
+.query-well {
+  margin-right: 15px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+}
+
+.query-row {
+  margin-top:10px;
+  padding-left: 10px;
+}
+
+.query-fieldset {
+	border: 1px groove #ddd !important;
+}
+
+
+

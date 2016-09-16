@@ -9,12 +9,45 @@ function ($scope, $http, dialogs) {
 	  $scope.species = {};
 	  $scope.selectedSpecies = null;
 	  $scope.selectedPresence = 'PRESENT';
+	  $scope.selectedSpeciesCategory = 'ANY';
 	  $scope.criteria = [];
+	  
+	  
+	  $scope.resetDifferentialExpression = function() {
+		  $scope.includeUpregulated = true;
+		  $scope.includeDownregulated = false;
+		  $scope.includeNotDifferentiallyExpressed = false;
+	  };
+
+	  $scope.resetDifferentialExpression();
+	  
+		$scope.$watch( 'selectedSpeciesCategory', function(newObj, oldObj) {
+			console.log('selectedSpeciesCategory', newObj);
+		}, false);
+		$scope.$watch( 'selectedPresence', function(newObj, oldObj) {
+			console.log('selectedPresence', newObj);
+			if(newObj == 'ABSENT') {
+				  $scope.includeUpregulated = false;
+				  $scope.includeDownregulated = false;
+				  $scope.includeNotDifferentiallyExpressed = false;
+				  $scope.setSpeciesCategory('SPECIFIC', $scope.defaultSpecies);
+			} else {
+				  $scope.resetDifferentialExpression();
+				  $scope.setSpeciesCategory('ANY', null);
+			}
+		}, false);
+		$scope.$watch( 'selectedSpecies', function(newObj, oldObj) {
+			console.log('selectedSpecies', newObj);
+		}, false);
+		$scope.$watch( 'includeUpregulated', function(newObj, oldObj) {
+			console.log('includeUpregulated', newObj);
+		}, false);
+
 	  
 	  $http.get("../../ISGwebServer/species")
 	    .success(function(data, status, headers, config) {
 			  console.info('success', data);
-			  $scope.selectedSpecies = data.species[0];
+			  $scope.defaultSpecies = data.species[0];
 			  _.each(data.species, function(s) {
 				 $scope.species[s.id] = s; 
 			  });
@@ -25,12 +58,71 @@ function ($scope, $http, dialogs) {
 	    .error(function(data, status, headers, config) {
 			  console.info('error', data);
 	    });
+	  $scope.setSpeciesCategory = function(category, species) {
+			 $scope.selectedSpeciesCategory = category;
+			 $scope.selectedSpecies = species;
+	  }
+	  
+	  $scope.renderSpeciesCategory = function() {
+		  if($scope.selectedSpeciesCategory == 'ANY') {
+			  return "Any species"
+		  }
+		  if($scope.selectedSpeciesCategory == 'ALL') {
+			  return "All species"
+		  }
+		  if($scope.selectedSpeciesCategory == 'SPECIFIC') {
+			  return $scope.selectedSpecies.displayName;
+		  }
+	  }
+	  
+	  $scope.renderCriterionPresenceAbsenceSpecies = function(criterion) {
+		  var presencePart = criterion.presence == 'PRESENT' ? 'Present in' : 'Absent from';
+		  var speciesPart;
+		  if(criterion.speciesCategory == 'ANY') {
+			  speciesPart = "any species";
+		  } else if(criterion.speciesCategory == 'ALL') {
+			  speciesPart = "all species";
+		  } else {
+			  speciesPart = $scope.species[criterion.speciesId].displayName;
+		  }
+		  return presencePart + " " + speciesPart;
+	  }
 
+	  $scope.renderIncludeUpregulated = function(criterion) {
+		  if(criterion.presence == 'ABSENT') {
+			  return '-';
+		  }
+		  return criterion.includeUpregulated ? 'Yes' : 'No';
+	  }
+
+	  $scope.renderIncludeDownregulated = function(criterion) {
+		  if(criterion.presence == 'ABSENT') {
+			  return '-';
+		  }
+		  return criterion.includeDownregulated ? 'Yes' : 'No';
+	  }
+
+	  $scope.renderIncludeNotDifferentiallyExpressed = function(criterion) {
+		  if(criterion.presence == 'ABSENT') {
+			  return '-';
+		  }
+		  return criterion.includeNotDifferentiallyExpressed ? 'Yes' : 'No';
+	  }
+
+	  
 	  $scope.addCriterion = function() {
-		 $scope.criteria.push({ 
-			 presence:$scope.selectedPresence,
-			 speciesId:$scope.selectedSpecies.id
-		 }); 
+		  var criterion = { 
+					 presence:$scope.selectedPresence,
+					 speciesCategory: $scope.selectedSpeciesCategory,
+					 includeUpregulated: $scope.includeUpregulated,
+					 includeDownregulated: $scope.includeDownregulated,
+					 includeNotDifferentiallyExpressed: $scope.includeNotDifferentiallyExpressed
+				 };
+		  if($scope.selectedSpecies) {
+			  criterion["speciesId"] = $scope.selectedSpecies.id;
+		  }
+		  
+		 $scope.criteria.push(criterion); 
 	  }
 
 	  $scope.clearCriteria = function() {
