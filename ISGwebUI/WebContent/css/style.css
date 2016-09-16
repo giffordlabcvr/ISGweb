@@ -78,5 +78,8 @@ a {
 	border: 1px groove #ddd !important;
 }
 
+.param-text {
+  width: 60px;
+}
 
 

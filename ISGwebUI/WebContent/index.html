@@ -75,9 +75,17 @@
 							</div>
 							<div class='row query-row'>
 								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireUpregulated" btn-checkbox>Up-regulated</button>
+								log<sub>2</sub> FC &gt;
+								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="upregulatedMinLog2FC"/>
+								FDR &lt;
+								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="upregulatedMaxFDR"/>
 							</div>
 							<div class='row query-row'>
 								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireDownregulated" btn-checkbox>Down-regulated</button>
+								log<sub>2</sub> FC &lt;
+								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireDownregulated" ng-model="downregulatedMaxLog2FC"/>
+								FDR &lt;
+								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="downregulatedMaxFDR"/>
 							</div>
 							<div class='row query-row'>
 								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireNotDifferentiallyExpressed" btn-checkbox>Not differentially expressed</button>

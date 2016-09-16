@@ -21,6 +21,10 @@ function ($scope, $http, dialogs) {
 	  $scope.resetDifferentialExpression = function() {
 		  $scope.requireUpregulated = false;
 		  $scope.requireDownregulated = false;
+		  $scope.upregulatedMinLog2FC = 0.0;
+		  $scope.downregulatedMaxLog2FC = 0.0;
+		  $scope.upregulatedMaxFDR = 0.05;
+		  $scope.downregulatedMaxFDR = 0.05;
 		  $scope.requireNotDifferentiallyExpressed = false;
 	  };
 
@@ -54,6 +58,9 @@ function ($scope, $http, dialogs) {
 		}, false);
 		$scope.$watch( 'requireUpregulated', function(newObj, oldObj) {
 			console.log('requireUpregulated', newObj);
+		}, false);
+		$scope.$watch( 'requireDownregulated', function(newObj, oldObj) {
+			console.log('requireDownregulated', newObj);
 		}, false);
 
 	  $http.get("../../ISGwebServer/species")
@@ -104,14 +111,14 @@ function ($scope, $http, dialogs) {
 		  if(criterion.presence == 'ABSENT') {
 			  return '-';
 		  }
-		  return criterion.requireUpregulated ? 'Required' : 'Not required';
+		  return criterion.requireUpregulated ? 'Required, log2FC > '+criterion.upregulatedMinLog2FC+', FDR < '+criterion.upregulatedMaxFDR : 'Not required';
 	  }
 
 	  $scope.renderRequireDownregulated = function(criterion) {
 		  if(criterion.presence == 'ABSENT') {
 			  return '-';
 		  }
-		  return criterion.requireDownregulated ? 'Required' : 'Not required';
+		  return criterion.requireDownregulated ? 'Required, log2FC < '+criterion.downregulatedMaxLog2FC+', FDR < '+criterion.downregulatedMaxFDR : 'Not required';
 	  }
 
 	  $scope.renderRequireNotDifferentiallyExpressed = function(criterion) {
@@ -135,7 +142,11 @@ function ($scope, $http, dialogs) {
 		  }
 		  if($scope.selectedPresence == 'PRESENT') {
 			  criterion["requireUpregulated"] = $scope.requireUpregulated;
+			  criterion["upregulatedMinLog2FC"] = Math.max(0, parseFloat($scope.upregulatedMinLog2FC));
+			  criterion["upregulatedMaxFDR"] = parseFloat($scope.upregulatedMaxFDR);
 			  criterion["requireDownregulated"] = $scope.requireDownregulated;
+			  criterion["downregulatedMaxLog2FC"] = Math.min(0, parseFloat($scope.downregulatedMaxLog2FC));
+			  criterion["downregulatedMaxFDR"] = parseFloat($scope.downregulatedMaxFDR);
 			  criterion["requireNotDifferentiallyExpressed"] = $scope.requireNotDifferentiallyExpressed;
 		  }
 		  

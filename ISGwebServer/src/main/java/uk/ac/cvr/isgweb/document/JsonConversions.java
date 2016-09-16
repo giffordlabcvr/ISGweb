@@ -95,8 +95,20 @@ public class JsonConversions {
 		}
 
 		if(presence == Presence.PRESENT) {
-			criterion.setRequireUpregulated(criterionJsonObj.getBoolean("requireUpregulated"));
-			criterion.setRequireDownregulated(criterionJsonObj.getBoolean("requireDownregulated"));
+			boolean requireUpregulated = criterionJsonObj.getBoolean("requireUpregulated");
+			criterion.setRequireUpregulated(requireUpregulated);
+			if(requireUpregulated) {
+				criterion.setUpregulatedMinLog2FC(criterionJsonObj.getJsonNumber("upregulatedMinLog2FC").doubleValue());
+				criterion.setUpregulatedMaxFDR(criterionJsonObj.getJsonNumber("upregulatedMaxFDR").doubleValue());
+			}
+			
+			boolean requireDownregulated = criterionJsonObj.getBoolean("requireDownregulated");
+			criterion.setRequireDownregulated(requireDownregulated);
+			if(requireDownregulated) {
+				criterion.setDownregulatedMaxLog2FC(criterionJsonObj.getJsonNumber("downregulatedMaxLog2FC").doubleValue());
+				criterion.setDownregulatedMaxFDR(criterionJsonObj.getJsonNumber("downregulatedMaxFDR").doubleValue());
+			}
+			
 			criterion.setRequireNotDifferentiallyExpressed(criterionJsonObj.getBoolean("requireNotDifferentiallyExpressed"));
 		}
 

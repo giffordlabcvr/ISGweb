@@ -31,6 +31,21 @@ public class Criterion {
 	
 	private Double upregulatedMinLog2FC; // null if presence == ABSENT or requireUpregulated = false, non-null otherwise.
 	private Double downregulatedMaxLog2FC; // null if presence == ABSENT or requireDownregulated = false, non-null otherwise.
+	private Double upregulatedMaxFDR; // null if presence == ABSENT or requireUpregulated = false, non-null otherwise.
+	public Double getUpregulatedMaxFDR() {
+		return upregulatedMaxFDR;
+	}
+	public void setUpregulatedMaxFDR(Double upregulatedMaxFDR) {
+		this.upregulatedMaxFDR = upregulatedMaxFDR;
+	}
+	public Double getDownregulatedMaxFDR() {
+		return downregulatedMaxFDR;
+	}
+	public void setDownregulatedMaxFDR(Double downregulatedMaxFDR) {
+		this.downregulatedMaxFDR = downregulatedMaxFDR;
+	}
+
+	private Double downregulatedMaxFDR; // null if presence == ABSENT or requireDownregulated = false, non-null otherwise.
 	
 	public Presence getPresence() {
 		return presence;
@@ -100,11 +115,11 @@ public class Criterion {
 	}
 	
 	private boolean upregulatedGene(SpeciesGene gene) {
-		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() > 0.0;
+		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() > upregulatedMinLog2FC && gene.getFdr() < upregulatedMaxFDR;
 	}
 
 	private boolean downregulatedGene(SpeciesGene gene) {
-		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() < 0.0;
+		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() < downregulatedMaxLog2FC && gene.getFdr() < downregulatedMaxFDR;
 	}
 
 	private boolean nonDifferentiallyExpressedGene(SpeciesGene gene) {
