@@ -63,7 +63,7 @@
 								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ANY', null)">Any species</a></li>
 								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ALL', null)">All species</a></li>
 								        <li ng-show="selectedPresence == 'PRESENT'" class="divider"></li>
-								        <li ng-repeat="aSpecies in species" ng-click="setSpeciesCategory('SPECIFIC', aSpecies)" role="menuitem"><a href="#">{{aSpecies.displayName}}</a></li>
+								        <li ng-repeat="aSpecies in species" ng-click="setSpeciesCategory('SPECIFIC', aSpecies)" role="menuitem"><a >{{aSpecies.displayName}}</a></li>
 								      </ul>
 								</div>
 							</div>		
@@ -74,13 +74,13 @@
 							Differential expression
 							</div>
 							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeUpregulated" btn-checkbox>Up-regulated</button>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireUpregulated" btn-checkbox>Up-regulated</button>
 							</div>
 							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeDownregulated" btn-checkbox>Down-regulated</button>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireDownregulated" btn-checkbox>Down-regulated</button>
 							</div>
 							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="includeNotDifferentiallyExpressed" btn-checkbox>Not differentially expressed</button>
+								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireNotDifferentiallyExpressed" btn-checkbox>Not differentially expressed</button>
 							</div>
 						</div>
 
@@ -101,45 +101,67 @@
 				</div>
 			</p>
 			<div ng-show="criteria.length == 0">
-				<p>No search criteria selected.</p>
+				<p>No search criteria selected (use the "Add criterion" button)</p>
 			</div>
 			<div ng-show="criteria.length > 0" >
 				<p>Clusters will be selected if they meet all of the following criteria:</p>
 				<table class="table table-bordered">
 					<thead>
 						<td><b>Presence / absence in species</b></td>
-						<td><b>Include up-regulated?</b></td>
-						<td><b>Include down-regulated?</b></td>
-						<td><b>Include non-differentially expressed?</b></td>
+						<td><b>Up-regulated gene</b></td>
+						<td><b>Down-regulated gene</b></td>
+						<td><b>Non-differentially expressed gene</b></td>
+						<td></td>
 					</thead>		
 					<tbody>
 						<tr ng-repeat="criterion in criteria track by $index">
 							<td>{{renderCriterionPresenceAbsenceSpecies(criterion)}}</td>
-							<td>{{renderIncludeUpregulated(criterion)}}</td>
-							<td>{{renderIncludeDownregulated(criterion)}}</td>
-							<td>{{renderIncludeNotDifferentiallyExpressed(criterion)}}</td>
+							<td>{{renderRequireUpregulated(criterion)}}</td>
+							<td>{{renderRequireDownregulated(criterion)}}</td>
+							<td>{{renderRequireNotDifferentiallyExpressed(criterion)}}</td>
+							<td><button type="button" class="btn btn-default btn-xs" 
+								ng-click="removeCriterion($index)">Remove</button>
+							</div>
+							</td>
 						</tr>
 					</tbody>	
 				</table>
 			</div>		
 		
 			<button type="button" class="btn btn-default" 
-				ng-click="runQuery()">Run query</button>
+				ng-click="runQuery()" ng-disabled="criteria.length == 0">Run query</button>
 			<div ng-show="resultRows">
 				<h3>Results</h3>
-				<div ng-show="resultRows.length == 0">No results</div>
+				<div ng-show="resultRows.length == 0">No clusters found for this query</div>
 				<div ng-show="resultRows.length > 0">
-					<div class="btn-group" dropdown is-open="status.isopen_numclusters">
-						Clusters per page:
-				      <button id="numclusters-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
-				        {{clustersPerPage}} <span class="caret"></span>
-				      </button>
-				      <ul class="dropdown-menu" role="menu" aria-labelledby="numclusters-button">
-				        <li ng-repeat="availableClustersPerPageValue in availableClustersPerPage" ng-click="setAvailableClustersPerPage(availableClustersPerPageValue)" role="menuitem"><a href="#">
-				        	{{availableClustersPerPageValue}}</a></li>
-				      </ul>
+					<div class='table query-table'>
+						<div class="row">
+							<button type="button" class="btn btn-default" 
+								ng-click="firstPage()">First</button>
+							<button type="button" ng-disabled="firstClusterIndex == 1" class="btn btn-default" 
+								ng-click="prevPage()">Previous</button>
+							<button type="button" ng-disabled="lastClusterIndex == orthoClusters.length" class="btn btn-default" 
+								ng-click="nextPage()">Next</button>
+							<button type="button" class="btn btn-default" 
+								ng-click="lastPage()">Last</button>
+						    
+							<div class="btn-group" dropdown is-open="status.isopen_numclusters">
+						      <button id="numclusters-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+						        Clusters per page: {{clustersPerPage}} <span class="caret"></span>
+						      </button>
+						      <ul class="dropdown-menu" role="menu" aria-labelledby="numclusters-button">
+						        <li ng-repeat="availableClustersPerPageValue in availableClustersPerPage" ng-click="setAvailableClustersPerPage(availableClustersPerPageValue)" role="menuitem"><a >
+						        	Clusters per page: {{availableClustersPerPageValue}}</a></li>
+						      </ul>
+							</div>
+							<button type="button" class="btn btn-default" 
+								ng-click="clearResults()">Clear results</button>
+						    
+						</div>
+						<div class="row">
+							Clusters {{firstClusterIndex}} to {{lastClusterIndex}} of {{orthoClusters.length}}     
+						</div>
 					</div>
-
 					<table class="table table-bordered tbl-results">
 						<thead>
 							<th>Orthologous cluster ID</th>

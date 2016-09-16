@@ -93,6 +93,13 @@ public class JsonConversions {
 			Species species = Species.valueOf(speciesIdString);
 			criterion.setSpecies(species);
 		}
+
+		if(presence == Presence.PRESENT) {
+			criterion.setRequireUpregulated(criterionJsonObj.getBoolean("requireUpregulated"));
+			criterion.setRequireDownregulated(criterionJsonObj.getBoolean("requireDownregulated"));
+			criterion.setRequireNotDifferentiallyExpressed(criterionJsonObj.getBoolean("requireNotDifferentiallyExpressed"));
+		}
+
 		return criterion;
 		
 	}
