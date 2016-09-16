@@ -115,11 +115,19 @@ public class Criterion {
 	}
 	
 	private boolean upregulatedGene(SpeciesGene gene) {
-		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() > upregulatedMinLog2FC && gene.getFdr() < upregulatedMaxFDR;
+		return gene.getIsDifferentiallyExpressed() && 
+				gene.getLog2foldChange() != null && 
+				gene.getLog2foldChange() > upregulatedMinLog2FC && 
+				gene.getFdr() != null &&
+				gene.getFdr() < upregulatedMaxFDR;
 	}
 
 	private boolean downregulatedGene(SpeciesGene gene) {
-		return gene.getIsDifferentiallyExpressed() && gene.getLog2foldChange() < downregulatedMaxLog2FC && gene.getFdr() < downregulatedMaxFDR;
+		return gene.getIsDifferentiallyExpressed() && 
+				gene.getLog2foldChange() != null && 
+				gene.getLog2foldChange() < downregulatedMaxLog2FC &&
+				gene.getFdr() != null &&
+				gene.getFdr() < downregulatedMaxFDR;
 	}
 
 	private boolean nonDifferentiallyExpressedGene(SpeciesGene gene) {
