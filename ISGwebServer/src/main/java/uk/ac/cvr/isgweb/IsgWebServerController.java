@@ -22,8 +22,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import uk.ac.cvr.isgweb.database.Criterion;
+import uk.ac.cvr.isgweb.database.GeneRegulationParams;
 import uk.ac.cvr.isgweb.database.IsgDatabase;
+import uk.ac.cvr.isgweb.database.SpeciesCriterion;
 import uk.ac.cvr.isgweb.document.JsonConversions;
 import uk.ac.cvr.isgweb.document.JsonUtils;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
@@ -47,15 +48,18 @@ public class IsgWebServerController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String queryIsgs(String requestString, @Context HttpServletResponse response) {
 		try {
-			logger.log(Level.INFO, "JSON Request: "+requestString);
 			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
+			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
 
-			JsonArray criteriaJsonArray = ((JsonArray) requestObj.get("criteria"));
-			List<Criterion> criteria = JsonConversions.criteriaFromJson(criteriaJsonArray);
-			
+			JsonObject geneRegulationParamsObj = ((JsonObject) requestObj.get("geneRegulationParams"));
+			GeneRegulationParams geneRegulationParams = JsonConversions.geneRegulationParamsFromJsonObj(geneRegulationParamsObj);
+
+			JsonArray speciesCriteriaJsonArray = ((JsonArray) requestObj.get("speciesCriteria"));
+			List<SpeciesCriterion> speciesCriteria = JsonConversions.speciesCriteriaFromJsonArray(speciesCriteriaJsonArray);
+
 			IsgDatabase isgDatabase = IsgDatabase.getInstance();
 			logger.log(Level.INFO, "Running query....");
-			List<OrthoCluster> resultOrthoClusters = isgDatabase.query(criteria);
+			List<OrthoCluster> resultOrthoClusters = isgDatabase.query(speciesCriteria, geneRegulationParams);
 			logger.log(Level.INFO, "Query complete");
 
 			StringWriter stringWriter = new StringWriter();

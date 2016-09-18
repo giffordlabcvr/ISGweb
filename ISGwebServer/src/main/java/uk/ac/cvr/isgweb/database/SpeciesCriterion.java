@@ -6,7 +6,7 @@ import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
 import uk.ac.cvr.isgweb.model.SpeciesGene;
 
-public class SpeciesRequirement {
+public class SpeciesCriterion {
 
 	private Species species; 
 
@@ -47,24 +47,25 @@ public class SpeciesRequirement {
 		this.requireAbsent = requireAbsent;
 	}
 
-	public boolean orthoClusterMeetsRequirement(GeneRegulationParams geneRegulationParams, OrthoCluster orthoCluster) {
+	public boolean orthoClusterSatisfiesCriterion(GeneRegulationParams geneRegulationParams, OrthoCluster orthoCluster) {
 		List<SpeciesGene> genes = orthoCluster.getSpeciesToGenes().get(species);
-		if( (genes == null || genes.isEmpty())) {
-			if(requireAbsent) {
-				return true;
-			}
-			if(requirePresent) {
-				return false;
-			}
-		}
-		if(requireUpregulated && !genes.stream().anyMatch(geneRegulationParams::upregulatedGene)) {
+		if(requireAbsent && genes != null && !genes.isEmpty()) {
 			return false;
-		} else if(requireNotUpregulated && genes.stream().anyMatch(geneRegulationParams::upregulatedGene)) {
+		} else if(requirePresent && (genes == null || genes.isEmpty())) {
 			return false;
 		}
-		if(requireDownregulated && !genes.stream().anyMatch(geneRegulationParams::downregulatedGene)) {
+		if(requireUpregulated && 
+				( genes == null || !genes.stream().anyMatch(geneRegulationParams::upregulatedGene) )) {
 			return false;
-		} else if(requireNotDownregulated && genes.stream().anyMatch(geneRegulationParams::downregulatedGene)) {
+		} else if(requireNotUpregulated && 
+				( genes != null && genes.stream().anyMatch(geneRegulationParams::upregulatedGene) )) {
+			return false;
+		}
+		if(requireDownregulated && 
+				( genes == null || !genes.stream().anyMatch(geneRegulationParams::downregulatedGene) )) {
+			return false;
+		} else if(requireNotDownregulated && 
+				( genes != null && genes.stream().anyMatch(geneRegulationParams::downregulatedGene) )) {
 			return false;
 		}
 		return true;

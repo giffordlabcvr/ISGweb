@@ -7,164 +7,153 @@ function ($scope, $http, dialogs) {
 
 	  $scope.resultRows = null;
 	  $scope.orthoClusters = null;
+
 	  $scope.species = {};
-	  $scope.criteria = [];
+	  $scope.speciesCriteria = [];
+	  $scope.geneRegulationParams = null;
 	  
 	  $scope.firstClusterIndex = null;
 	  $scope.lastClusterIndex = null;
-	  
 	  $scope.availableClustersPerPage = [10,25,100,500];
-	  
 	  $scope.clustersPerPage = $scope.availableClustersPerPage[0];
 	  
+	  $scope.updating = false;
 	  
-	  $scope.resetDifferentialExpression = function() {
-		  $scope.requireUpregulated = false;
-		  $scope.requireDownregulated = false;
-		  $scope.upregulatedMinLog2FC = 0.0;
-		  $scope.downregulatedMaxLog2FC = 0.0;
-		  $scope.upregulatedMaxFDR = 0.05;
-		  $scope.downregulatedMaxFDR = 0.05;
-		  $scope.requireNotDifferentiallyExpressed = false;
+	  $scope.resetGeneRegulationParams = function() {
+		  $scope.geneRegulationParams = {
+				  upregulatedMinLog2FC : 0.0,
+				  downregulatedMaxLog2FC : 0.0,
+				  maxFDR : 0.05
+		  };
 	  };
 
-	  $scope.resetDifferentialExpression();
-	  
-	  $scope.resetSpecies = function() {
-		  $scope.selectedSpecies = null;
-		  $scope.selectedPresence = 'PRESENT';
-		  $scope.selectedSpeciesCategory = 'ANY';
+	  $scope.resetGeneRegulationParams();
+
+	  $scope.setOnAllSpeciesCriteria = function(field) {
+		  _.each($scope.speciesCriteria, function(crit) {
+			  crit[field] = true;
+		  });
 	  }
 
-	  $scope.resetSpecies();
+	  $scope.validateParam = function(min, max, value, defaultValue) {
+		 if(!$scope.isNumeric(value)) {
+			 return defaultValue;
+		 }  
+		 if(min != null && value <= min) {
+			 return defaultValue;
+		 }
+		 if(max != null && value >= max) {
+			 return defaultValue;
+		 }
+		 return value;
+	  }  
+	  
+	  $scope.isNumeric = function(n) {
+		  return !isNaN(parseFloat(n)) && isFinite(n);
+	  };
+	  
+	  $scope.resetSpeciesCriteria = function() {
+		  $scope.speciesCriteria = [];
+		  var i = 0;
+		  _.each($scope.species, function(value, key) {
+			  var criterion = {
+					  species: key,
+					  requireUpregulated : false,
+					  requireNotUpregulated : false,
+					  requireDownregulated : false,
+					  requireNotDownregulated : false,
+					  requirePresent: false,
+					  requireAbsent: false
+				  };
+			  $scope.speciesCriteria.push(criterion);
+				$scope.$watch( 'speciesCriteria['+i+'].requirePresent', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requireAbsent = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				$scope.$watch( 'speciesCriteria['+i+'].requireAbsent', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requirePresent = false;
+							criterion.requireUpregulated = false;
+							criterion.requireDownregulated = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				$scope.$watch( 'speciesCriteria['+i+'].requireUpregulated', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requireNotUpregulated = false;
+							criterion.requireAbsent = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				$scope.$watch( 'speciesCriteria['+i+'].requireNotUpregulated', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requireUpregulated = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				$scope.$watch( 'speciesCriteria['+i+'].requireDownregulated', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requireNotDownregulated = false;
+							criterion.requireAbsent = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				$scope.$watch( 'speciesCriteria['+i+'].requireNotDownregulated', function(newObj, oldObj) {
+					if(!$scope.updating) {
+						$scope.updating = true;
+						if(newObj) {
+							criterion.requireDownregulated = false;
+						}
+						$scope.updating = false;
+					}
+				}, false);
+				i++;
+		  });
+		  console.info('speciesCriteria', $scope.speciesCriteria);
 
-		$scope.$watch( 'selectedSpeciesCategory', function(newObj, oldObj) {
-			console.log('selectedSpeciesCategory', newObj);
-		}, false);
-		$scope.$watch( 'selectedPresence', function(newObj, oldObj) {
-			console.log('selectedPresence', newObj);
-			if(newObj == 'ABSENT') {
-				  $scope.requireUpregulated = false;
-				  $scope.requireDownregulated = false;
-				  $scope.requireNotDifferentiallyExpressed = false;
-				  $scope.setSpeciesCategory('SPECIFIC', $scope.defaultSpecies);
-			} else {
-				  $scope.resetDifferentialExpression();
-				  $scope.setSpeciesCategory('ANY', null);
-			}
-		}, false);
-		$scope.$watch( 'selectedSpecies', function(newObj, oldObj) {
-			console.log('selectedSpecies', newObj);
-		}, false);
-		$scope.$watch( 'requireUpregulated', function(newObj, oldObj) {
-			console.log('requireUpregulated', newObj);
-		}, false);
-		$scope.$watch( 'requireDownregulated', function(newObj, oldObj) {
-			console.log('requireDownregulated', newObj);
-		}, false);
+	  };
+
+	  $scope.resetSpeciesCriteria();
+
 
 	  $http.get("../../ISGwebServer/species")
 	    .success(function(data, status, headers, config) {
 			  console.info('success', data);
-			  $scope.defaultSpecies = data.species[0];
 			  _.each(data.species, function(s) {
 				 $scope.species[s.id] = s; 
 			  });
-			  console.info('selectedSpecies', $scope.selectedSpecies);
 			  console.info('species', $scope.species);
+			  $scope.resetSpeciesCriteria();
 			  
 	    })
 	    .error(function(data, status, headers, config) {
 			  console.info('error', data);
 	    });
-	  $scope.setSpeciesCategory = function(category, species) {
-			 $scope.selectedSpeciesCategory = category;
-			 $scope.selectedSpecies = species;
-	  }
 	  
-	  $scope.renderSpeciesCategory = function() {
-		  if($scope.selectedSpeciesCategory == 'ANY') {
-			  return "Any species"
-		  }
-		  if($scope.selectedSpeciesCategory == 'ALL') {
-			  return "All species"
-		  }
-		  if($scope.selectedSpeciesCategory == 'SPECIFIC') {
-			  return $scope.selectedSpecies.displayName;
-		  }
-	  }
 	  
-	  $scope.renderCriterionPresenceAbsenceSpecies = function(criterion) {
-		  var presencePart = criterion.presence == 'PRESENT' ? 'Cluster contains one or more genes in ' : 'Cluster does not contain genes in ';
-		  var speciesPart;
-		  if(criterion.speciesCategory == 'ANY') {
-			  speciesPart = "any species";
-		  } else if(criterion.speciesCategory == 'ALL') {
-			  speciesPart = "all species";
-		  } else {
-			  speciesPart = $scope.species[criterion.speciesId].displayName;
-		  }
-		  return presencePart + " " + speciesPart;
-	  }
-
-	  $scope.renderRequireUpregulated = function(criterion) {
-		  if(criterion.presence == 'ABSENT') {
-			  return '-';
-		  }
-		  return criterion.requireUpregulated ? 'Required, log2FC > '+criterion.upregulatedMinLog2FC+', FDR < '+criterion.upregulatedMaxFDR : 'Not required';
-	  }
-
-	  $scope.renderRequireDownregulated = function(criterion) {
-		  if(criterion.presence == 'ABSENT') {
-			  return '-';
-		  }
-		  return criterion.requireDownregulated ? 'Required, log2FC < '+criterion.downregulatedMaxLog2FC+', FDR < '+criterion.downregulatedMaxFDR : 'Not required';
-	  }
-
-	  $scope.renderRequireNotDifferentiallyExpressed = function(criterion) {
-		  if(criterion.presence == 'ABSENT') {
-			  return '-';
-		  }
-		  return criterion.requireNotDifferentiallyExpressed ? 'Required' : 'Not required';
-	  }
-
+	
 	  $scope.setAvailableClustersPerPage = function(newValue) {
 		  $scope.clustersPerPage = newValue;
 	  }
 	  
-	  $scope.addCriterion = function() {
-		  var criterion = { 
-					 presence:$scope.selectedPresence,
-					 speciesCategory: $scope.selectedSpeciesCategory,
-				 };
-		  if($scope.selectedSpecies) {
-			  criterion["speciesId"] = $scope.selectedSpecies.id;
-		  }
-		  if($scope.selectedPresence == 'PRESENT') {
-			  criterion["requireUpregulated"] = $scope.requireUpregulated;
-			  criterion["upregulatedMinLog2FC"] = Math.max(0, parseFloat($scope.upregulatedMinLog2FC));
-			  criterion["upregulatedMaxFDR"] = parseFloat($scope.upregulatedMaxFDR);
-			  criterion["requireDownregulated"] = $scope.requireDownregulated;
-			  criterion["downregulatedMaxLog2FC"] = Math.min(0, parseFloat($scope.downregulatedMaxLog2FC));
-			  criterion["downregulatedMaxFDR"] = parseFloat($scope.downregulatedMaxFDR);
-			  criterion["requireNotDifferentiallyExpressed"] = $scope.requireNotDifferentiallyExpressed;
-		  }
-		  
-		 $scope.criteria.push(criterion); 
-	  }
 	  
-	  $scope.removeCriterion = function(index) {
-			 $scope.criteria.splice(index, 1); 
-	  }
-	  
-
-	  $scope.clearCriteria = function() {
-			 $scope.criteria = []; 
-			  $scope.resetSpecies();
-			  $scope.resetDifferentialExpression();
-
-		  }
-
 	  $scope.clearResults = function() {
 			 $scope.resultRows = null; 
 			 $scope.orthoClusters = null; 
@@ -172,7 +161,20 @@ function ($scope, $http, dialogs) {
 
 	  
 	  $scope.runQuery = function() {
-		  $http.post("../../ISGwebServer/queryIsgs", {criteria: $scope.criteria})
+
+		  $scope.geneRegulationParams.upregulatedMinLog2FC = 
+			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.upregulatedMinLog2FC, 0.0));
+
+		  $scope.geneRegulationParams.downregulatedMaxLog2FC = 
+			  Number($scope.validateParam(null, 0, $scope.geneRegulationParams.downregulatedMaxLog2FC, 0.0));
+
+		  $scope.geneRegulationParams.maxFDR = 
+			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.maxFDR, 0.05));
+		  
+		  $http.post("../../ISGwebServer/queryIsgs", {
+			  geneRegulationParams: $scope.geneRegulationParams,
+			  speciesCriteria: $scope.speciesCriteria
+			 })
 		    .success(function(data, status, headers, config) {
 				  console.info('success', data);
 				  $scope.orthoClusters = data.orthoClusters;

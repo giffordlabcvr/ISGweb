@@ -37,107 +37,97 @@
 		This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
 		For each gene, transcriptomics results for the differential expression of the gene are included.
 		</p>
-		<h3>Query Clusters by Criteria</h3>
-			<p>
-				<div class='table query-table'>
-					<div class='row'>
-						<div class='col-md-5 well query-well'>
-							<div class='row query-row'>
-							Presence / absence in species
-							</div>
-							<div class='row query-row'>
-								<div class="btn-group">
-									<label class="btn btn-default ng-pristine ng-untouched ng-valid active" 
-										ng-model="selectedPresence" btn-radio="'PRESENT'">Present in</label>
-									<label class="btn btn-default ng-pristine ng-untouched ng-valid active" 
-										ng-model="selectedPresence" btn-radio="'ABSENT'">Absent from</label>
-								</div>
-							</div>
-							<div class='row query-row'>
-
-								<div class="btn-group" dropdown is-open="status.isopen_species">
-								      <button id="species-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
-								        {{renderSpeciesCategory()}} <span class="caret"></span>
-								      </button>
-								      <ul class="dropdown-menu" role="menu" aria-labelledby="species-button">
-								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ANY', null)">Any species</a></li>
-								        <li ng-show="selectedPresence == 'PRESENT'" role="menuitem"><a ng-click="setSpeciesCategory('ALL', null)">All species</a></li>
-								        <li ng-show="selectedPresence == 'PRESENT'" class="divider"></li>
-								        <li ng-repeat="aSpecies in species" ng-click="setSpeciesCategory('SPECIFIC', aSpecies)" role="menuitem"><a >{{aSpecies.displayName}}</a></li>
-								      </ul>
-								</div>
-							</div>		
-						</div>
-
-						<div class='col-md-5 well query-well'>
-							<div class='row query-row'>
-							Differential expression
-							</div>
-							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireUpregulated" btn-checkbox>Up-regulated</button>
-								log<sub>2</sub> FC &gt;
-								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="upregulatedMinLog2FC"/>
-								FDR &lt;
-								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="upregulatedMaxFDR"/>
-							</div>
-							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireDownregulated" btn-checkbox>Down-regulated</button>
-								log<sub>2</sub> FC &lt;
-								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireDownregulated" ng-model="downregulatedMaxLog2FC"/>
-								FDR &lt;
-								<input class="param-text" type="text" ng-disabled="selectedPresence == 'ABSENT' || !requireUpregulated" ng-model="downregulatedMaxFDR"/>
-							</div>
-							<div class='row query-row'>
-								<button type="button" class="btn btn-default" ng-disabled="selectedPresence == 'ABSENT'" ng-model="requireNotDifferentiallyExpressed" btn-checkbox>Not differentially expressed</button>
-							</div>
-						</div>
-
-
-
-
-						<div class='col-md-1'>
-							<div class='row query-row'>
-							<button type="button" class="btn btn-default" 
-								ng-click="addCriterion()">Add criterion</button>
-							</div>
-							<div class='row query-row'>
-							<button type="button" class="btn btn-default" 
-								ng-click="clearCriteria()">Clear criteria</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</p>
-			<div ng-show="criteria.length == 0">
-				<p>No search criteria selected (use the "Add criterion" button)</p>
-			</div>
-			<div ng-show="criteria.length > 0" >
-				<p>Clusters will be selected if they meet all of the following criteria:</p>
-				<table class="table table-bordered">
-					<thead>
-						<td><b>Presence / absence in species</b></td>
-						<td><b>Up-regulated gene</b></td>
-						<td><b>Down-regulated gene</b></td>
-						<td><b>Non-differentially expressed gene</b></td>
-						<td></td>
-					</thead>		
+				<p>Gene regulation parameters</p>
+				<table class="table table-bordered table-nonfluid">
 					<tbody>
-						<tr ng-repeat="criterion in criteria track by $index">
-							<td>{{renderCriterionPresenceAbsenceSpecies(criterion)}}</td>
-							<td>{{renderRequireUpregulated(criterion)}}</td>
-							<td>{{renderRequireDownregulated(criterion)}}</td>
-							<td>{{renderRequireNotDifferentiallyExpressed(criterion)}}</td>
-							<td><button type="button" class="btn btn-default btn-xs" 
-								ng-click="removeCriterion($index)">Remove</button>
-							</div>
+						<tr>							
+								<td><b>Up-regulated genes:</b></td>
+								<td>log<sub>2</sub> FC &gt; <input class="param-text" type="text" 
+									ng-model="geneRegulationParams.upregulatedMinLog2FC"/></td>
+						</tr>
+						<tr>
+								<td><b>Down-regulated genes:</b></td>
+								<td>log<sub>2</sub> FC &lt; <input class="param-text" type="text" ng-model="geneRegulationParams.downregulatedMaxLog2FC"/></td>
+						</tr>
+						<tr>
+								<td><b>False discovery rate:</b></td>
+								<td>FDR &lt; <input class="param-text" type="text" ng-model="geneRegulationParams.maxFDR"/></td>
+						</tr>
+					</tbody>
+				</table>
+				<p>Selected clusters must meet all of the following species criteria
+					<buton class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+						ng-click="resetSpeciesCriteria()">Reset all</label>
+				</p>
+				<table class="table table-bordered">
+					<tbody>
+						<tr>							
+							<td>Set for all species</td>
+							<td>
+									Ortholog:
+								<div class="btn-group">
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requirePresent')">Present</label>
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requireAbsent')">Absent</label>
+								</div>
+							</td>
+							<td>
+									Up-regulated gene:
+								<div class="btn-group">
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requireUpregulated')">Present</label>
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requireNotUpregulated')">Absent</label>
+								</div>
+							</td>
+							<td>
+									Down-regulated gene:
+								<div class="btn-group">
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requireDownregulated')">Present</label>
+									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
+										ng-click="setOnAllSpeciesCriteria('requireNotDownregulated')">Absent</label>
+								</div>
+							</td>
+						</tr>
+					
+					
+					
+						<tr ng-repeat="speciesCriterion in speciesCriteria">							
+							<td>{{species[speciesCriterion.species].displayName}}</td>
+							<td>
+									Ortholog:
+								<div class="btn-group">
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requirePresent">Present</label>
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requireAbsent">Absent</label>
+								</div>
+							</td>
+							<td>
+									Up-regulated gene:
+								<div class="btn-group">
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requireUpregulated">Present</label>
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requireNotUpregulated">Absent</label>
+								</div>
+							</td>
+							<td>
+									Down-regulated gene:
+								<div class="btn-group">
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requireDownregulated">Present</label>
+									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
+										btn-checkbox ng-model="speciesCriterion.requireNotDownregulated">Absent</label>
+								</div>
 							</td>
 						</tr>
 					</tbody>	
 				</table>
-			</div>		
-		
 			<button type="button" class="btn btn-default" 
-				ng-click="runQuery()" ng-disabled="criteria.length == 0">Run query</button>
+				ng-click="runQuery()" >Run query</button>
 			<div ng-show="resultRows">
 				<h3>Results</h3>
 				<div ng-show="resultRows.length == 0">No clusters found for this query</div>
@@ -166,20 +156,16 @@
 								ng-click="clearResults()">Clear results</button>
 						    
 						</div>
-						<div class="row">
-							Clusters {{firstClusterIndex}} to {{lastClusterIndex}} of {{orthoClusters.length}}     
-						</div>
 					</div>
+					<p>Clusters {{firstClusterIndex}} to {{lastClusterIndex}} of {{orthoClusters.length}}</p>
 					<table class="table table-bordered tbl-results">
 						<thead>
 							<th>Orthologous cluster ID</th>
 							<th>Species</th>
 							<th>ENSEMBL ID</th>
 							<th>Gene</th>
-							<th><em>dn/ds</em> Ratio</em></th>
 							<th><em>log<sub>2</sub></em> Fold Change</em></th>
 							<th>FDR</em></th>
-							<th>Percent identity</em></th>
 						</thead>		
 						<tbody>
 							<tr class="{{resultRow.rowClass}}" ng-repeat="resultRow in resultRows track by $index">
@@ -187,10 +173,8 @@
 								<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
 								<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
 								<td>{{resultRow.geneName}}</td>
-								<td>{{resultRow.dndsRatio}}</td>
 								<td>{{resultRow.log2fc}}</td>
 								<td>{{resultRow.fdr}}</td>
-								<td>{{resultRow.percId}}</td>
 							</tr>
 						</tbody>	
 					</table>

@@ -6,14 +6,10 @@ import java.util.stream.Collectors;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.json.stream.JsonGenerator;
 
 import uk.ac.cvr.isgweb.database.GeneRegulationParams;
-import uk.ac.cvr.isgweb.database.SpeciesRequirement;
-import uk.ac.cvr.isgweb.database.Criterion;
-import uk.ac.cvr.isgweb.database.Criterion.Presence;
-import uk.ac.cvr.isgweb.database.Criterion.SpeciesCategory;
+import uk.ac.cvr.isgweb.database.SpeciesCriterion;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
 import uk.ac.cvr.isgweb.model.SpeciesGene;
@@ -73,68 +69,29 @@ public class JsonConversions {
 		if(val == null)  { jsonGenerator.writeNull(); } else { jsonGenerator.write(val); }
 	}
 
-	public static List<Criterion> criteriaFromJson(JsonArray criteriaJsonArray) {
+	public static List<SpeciesCriterion> speciesCriteriaFromJsonArray(JsonArray criteriaJsonArray) {
 		return criteriaJsonArray.stream()
-				.map(v -> criterionFromJsonObj((JsonObject) v))
+				.map(v -> speciesCriterionFromJsonObj((JsonObject) v))
 				.collect(Collectors.toList());
 	}
 
-	public static Criterion criterionFromJsonObj(JsonObject criterionJsonObj) {
-		String speciesCategoryString = ((JsonString) criterionJsonObj.get("speciesCategory")).getString();
-		SpeciesCategory speciesCategory = SpeciesCategory.valueOf(speciesCategoryString);
-
-		String presenceString = ((JsonString) criterionJsonObj.get("presence")).getString();
-		Presence presence = Presence.valueOf(presenceString);
 	
-		Criterion criterion = new Criterion();
-		criterion.setPresence(presence);
-		criterion.setSpeciesCategory(speciesCategory);
-
-		if(speciesCategory == SpeciesCategory.SPECIFIC) {
-			String speciesIdString = ((JsonString) criterionJsonObj.get("speciesId")).getString();
-			Species species = Species.valueOf(speciesIdString);
-			criterion.setSpecies(species);
-		}
-
-		if(presence == Presence.PRESENT) {
-			boolean requireUpregulated = criterionJsonObj.getBoolean("requireUpregulated");
-			criterion.setRequireUpregulated(requireUpregulated);
-			if(requireUpregulated) {
-				criterion.setUpregulatedMinLog2FC(criterionJsonObj.getJsonNumber("upregulatedMinLog2FC").doubleValue());
-				criterion.setUpregulatedMaxFDR(criterionJsonObj.getJsonNumber("upregulatedMaxFDR").doubleValue());
-			}
-			
-			boolean requireDownregulated = criterionJsonObj.getBoolean("requireDownregulated");
-			criterion.setRequireDownregulated(requireDownregulated);
-			if(requireDownregulated) {
-				criterion.setDownregulatedMaxLog2FC(criterionJsonObj.getJsonNumber("downregulatedMaxLog2FC").doubleValue());
-				criterion.setDownregulatedMaxFDR(criterionJsonObj.getJsonNumber("downregulatedMaxFDR").doubleValue());
-			}
-			
-			criterion.setRequireNotDifferentiallyExpressed(criterionJsonObj.getBoolean("requireNotDifferentiallyExpressed"));
-		}
-
-		return criterion;
-		
+	public static SpeciesCriterion speciesCriterionFromJsonObj(JsonObject specReqJsonObj) {
+		SpeciesCriterion speciesCriterion = new SpeciesCriterion();
+		speciesCriterion.setSpecies(Species.valueOf(specReqJsonObj.getString("species")));
+		speciesCriterion.setRequireUpregulated(specReqJsonObj.getBoolean("requireUpregulated"));
+		speciesCriterion.setRequireNotUpregulated(specReqJsonObj.getBoolean("requireNotUpregulated"));
+		speciesCriterion.setRequireDownregulated(specReqJsonObj.getBoolean("requireDownregulated"));
+		speciesCriterion.setRequireNotDownregulated(specReqJsonObj.getBoolean("requireNotDownregulated"));
+		speciesCriterion.setRequirePresent(specReqJsonObj.getBoolean("requirePresent"));
+		speciesCriterion.setRequireAbsent(specReqJsonObj.getBoolean("requireAbsent"));
+		return speciesCriterion;
 	}
 
-	
-	public static SpeciesRequirement speciesRequirementFromJsonObj(JsonObject specReqJsonObj) {
-		SpeciesRequirement speciesRequirement = new SpeciesRequirement();
-		speciesRequirement.setSpecies(Species.valueOf(specReqJsonObj.getString("species")));
-		speciesRequirement.setRequireUpregulated(specReqJsonObj.getBoolean("requireUpregulated"));
-		speciesRequirement.setRequireNotUpregulated(specReqJsonObj.getBoolean("requireNotUpregulated"));
-		speciesRequirement.setRequireDownregulated(specReqJsonObj.getBoolean("requireDownregulated"));
-		speciesRequirement.setRequireNotDownregulated(specReqJsonObj.getBoolean("requireNotDownregulated"));
-		speciesRequirement.setRequirePresent(specReqJsonObj.getBoolean("requirePresent"));
-		speciesRequirement.setRequireAbsent(specReqJsonObj.getBoolean("requireAbsent"));
-		return speciesRequirement;
-	}
-
-	public static GeneRegulationParams queryExpressionParametersFromJsonObj(JsonObject queryExprJsonObj) {
+	public static GeneRegulationParams geneRegulationParamsFromJsonObj(JsonObject queryExprJsonObj) {
 		GeneRegulationParams geneRegulationParams = new GeneRegulationParams();
-		geneRegulationParams.setUpregulatedMinLog2FoldChange(queryExprJsonObj.getJsonNumber("upregulatedMinLog2FoldChange").doubleValue());
-		geneRegulationParams.setDownregulatedMaxLog2FoldChange(queryExprJsonObj.getJsonNumber("downregulatedMaxLog2FoldChange").doubleValue());
+		geneRegulationParams.setUpregulatedMinLog2FoldChange(queryExprJsonObj.getJsonNumber("upregulatedMinLog2FC").doubleValue());
+		geneRegulationParams.setDownregulatedMaxLog2FoldChange(queryExprJsonObj.getJsonNumber("downregulatedMaxLog2FC").doubleValue());
 		geneRegulationParams.setMaxFDR(queryExprJsonObj.getJsonNumber("maxFDR").doubleValue());
 		return geneRegulationParams;
 	}
