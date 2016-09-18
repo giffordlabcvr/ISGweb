@@ -56,13 +56,11 @@
 					</tbody>
 				</table>
 				<p>Selected clusters must meet all of the following species criteria
-					<buton class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
-						ng-click="resetSpeciesCriteria()">Reset all</label>
 				</p>
 				<table class="table table-bordered">
 					<tbody>
 						<tr>							
-							<td>Set for all species</td>
+							<td></td>
 							<td>
 									Ortholog:
 								<div class="btn-group">
@@ -126,8 +124,10 @@
 						</tr>
 					</tbody>	
 				</table>
-			<button type="button" class="btn btn-default" 
-				ng-click="runQuery()" >Run query</button>
+				<p><button class="btn btn-default" 
+				ng-click="resetSpeciesCriteria()">Reset criteria</button></p>
+				<p><button type="button" class="btn btn-default" 
+				ng-click="runQuery()" >Run query</button></p>
 			<div ng-show="resultRows">
 				<h3>Results</h3>
 				<div ng-show="resultRows.length == 0">No clusters found for this query</div>
