@@ -74,6 +74,15 @@ a {
   padding-left: 10px;
 }
 
+.upregulated-icon {
+  color: red;
+}
+
+.downregulated-icon {
+  color: blue;
+}
+
+
 .query-fieldset {
 	border: 1px groove #ddd !important;
 }

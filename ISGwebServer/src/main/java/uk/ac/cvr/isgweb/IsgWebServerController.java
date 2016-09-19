@@ -66,7 +66,7 @@ public class IsgWebServerController {
 			JsonGenerator jsonGenerator = Json.createGenerator(stringWriter);
 			logger.log(Level.INFO, "Converting results to JSON...");
 			jsonGenerator.writeStartObject();
-			JsonConversions.orthoClustersToJsonArray(jsonGenerator, resultOrthoClusters);
+			JsonConversions.orthoClustersToJsonArray(jsonGenerator, geneRegulationParams, resultOrthoClusters);
 			jsonGenerator.writeEnd();
 			jsonGenerator.flush();
 			logger.log(Level.INFO, "Results converted");

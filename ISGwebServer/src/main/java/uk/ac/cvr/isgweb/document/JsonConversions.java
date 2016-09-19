@@ -16,37 +16,37 @@ import uk.ac.cvr.isgweb.model.SpeciesGene;
 
 public class JsonConversions {
 
-	public static void orthoClustersToJsonArray(JsonGenerator jsonGenerator, 
+	public static void orthoClustersToJsonArray(JsonGenerator jsonGenerator, GeneRegulationParams geneRegulationParams, 
 			List<OrthoCluster> orthoClusters) {
 		jsonGenerator.writeStartArray("orthoClusters");
-		orthoClusters.forEach(orthoCluster -> orthoClusterToJsonObj(jsonGenerator, orthoCluster));
+		orthoClusters.forEach(orthoCluster -> orthoClusterToJsonObj(jsonGenerator, geneRegulationParams, orthoCluster));
 		jsonGenerator.writeEnd();
 	}
 
-	public static void orthoClusterToJsonObj(JsonGenerator jsonGenerator, OrthoCluster orthoCluster) {
+	public static void orthoClusterToJsonObj(JsonGenerator jsonGenerator, GeneRegulationParams geneRegulationParams, OrthoCluster orthoCluster) {
 		jsonGenerator.writeStartObject()
 			.write("orthoClusterId", orthoCluster.getOrthoClusterID())
 			.write("orthoClusterIdShort", orthoCluster.getOrthoClusterIDShort());
-		speciesToGenesToJsonObj(jsonGenerator, orthoCluster.getSpeciesToGenes());
+		speciesToGenesToJsonObj(jsonGenerator, geneRegulationParams, orthoCluster.getSpeciesToGenes());
 		jsonGenerator.writeEnd();
 	}
 
-	public static void speciesToGenesToJsonObj(JsonGenerator jsonGenerator, Map<Species, List<SpeciesGene>> speciesToGenes) {
+	public static void speciesToGenesToJsonObj(JsonGenerator jsonGenerator, GeneRegulationParams geneRegulationParams, Map<Species, List<SpeciesGene>> speciesToGenes) {
 		jsonGenerator.writeStartObject("speciesToGenes");
 		speciesToGenes.forEach((species, genes) -> {
-			genesToJsonArray(jsonGenerator, species, genes);
+			genesToJsonArray(jsonGenerator, geneRegulationParams, species, genes);
 		});
 		jsonGenerator.writeEnd();
 	}
 
-	public static void genesToJsonArray(JsonGenerator jsonGenerator, Species species, List<SpeciesGene> genes) {
+	public static void genesToJsonArray(JsonGenerator jsonGenerator, GeneRegulationParams geneRegulationParams, Species species, List<SpeciesGene> genes) {
 		jsonGenerator.writeStartArray(species.name());
-		genes.forEach(gene -> geneToJsonArray(jsonGenerator, gene));
+		genes.forEach(gene -> geneToJsonArray(jsonGenerator, geneRegulationParams, gene));
 		jsonGenerator.writeEnd();
 	}
 
 	// use array for this part of the result as this is the inner loop.
-	public static void geneToJsonArray(JsonGenerator jsonGenerator, SpeciesGene gene) {
+	public static void geneToJsonArray(JsonGenerator jsonGenerator, GeneRegulationParams geneRegulationParams, SpeciesGene gene) {
 		jsonGenerator.writeStartArray();
 		jsonGenerator.write(gene.getEnsembleId());
 		addGeneFieldToArray(jsonGenerator, gene.getGeneName());
@@ -56,6 +56,8 @@ public class JsonConversions {
 		addGeneFieldToArray(jsonGenerator, gene.getPercentIdentity());
 		addGeneFieldToArray(jsonGenerator, gene.getAnyHomology());
 		addGeneFieldToArray(jsonGenerator, gene.getIsDifferentiallyExpressed());
+		addGeneFieldToArray(jsonGenerator, geneRegulationParams.upregulatedGene(gene));
+		addGeneFieldToArray(jsonGenerator, geneRegulationParams.downregulatedGene(gene));
 		jsonGenerator.writeEnd();
 	}
 

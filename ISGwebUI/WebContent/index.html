@@ -37,16 +37,16 @@
 		This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
 		For each gene, transcriptomics results for the differential expression of the gene are included.
 		</p>
-				<p>Gene regulation parameters</p>
+				<p>Gene expression parameters</p>
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
 						<tr>							
-								<td><b>Up-regulated genes:</b></td>
+								<td><i class="glyphicon glyphicon-arrow-up upregulated-icon"></i> <b>Up-regulated genes:</b></td>
 								<td>log<sub>2</sub> FC &gt; <input class="param-text" type="text" 
 									ng-model="geneRegulationParams.upregulatedMinLog2FC"/></td>
 						</tr>
 						<tr>
-								<td><b>Down-regulated genes:</b></td>
+								<td><i class="glyphicon glyphicon-arrow-down downregulated-icon"></i> <b>Down-regulated genes:</b></td>
 								<td>log<sub>2</sub> FC &lt; <input class="param-text" type="text" ng-model="geneRegulationParams.downregulatedMaxLog2FC"/></td>
 						</tr>
 						<tr>
@@ -71,7 +71,7 @@
 								</div>
 							</td>
 							<td>
-									Up-regulated gene:
+								<i class="glyphicon glyphicon-arrow-up upregulated-icon"></i> Up-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
 										ng-click="setOnAllSpeciesCriteria('requireUpregulated')">Present</label>
@@ -80,7 +80,7 @@
 								</div>
 							</td>
 							<td>
-									Down-regulated gene:
+								<i class="glyphicon glyphicon-arrow-down downregulated-icon"></i> Down-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-primary btn-xs ng-pristine ng-untouched ng-valid active" 
 										ng-click="setOnAllSpeciesCriteria('requireDownregulated')">Present</label>
@@ -95,7 +95,7 @@
 						<tr ng-repeat="speciesCriterion in speciesCriteria">							
 							<td>{{species[speciesCriterion.species].displayName}}</td>
 							<td>
-									Ortholog:
+								Ortholog:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
 										btn-checkbox ng-model="speciesCriterion.requirePresent">Present</label>
@@ -104,7 +104,7 @@
 								</div>
 							</td>
 							<td>
-									Up-regulated gene:
+								<i class="glyphicon glyphicon-arrow-up upregulated-icon"></i> Up-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
 										btn-checkbox ng-model="speciesCriterion.requireUpregulated">Present</label>
@@ -113,7 +113,7 @@
 								</div>
 							</td>
 							<td>
-									Down-regulated gene:
+								<i class="glyphicon glyphicon-arrow-down downregulated-icon"></i> Down-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
 										btn-checkbox ng-model="speciesCriterion.requireDownregulated">Present</label>
@@ -164,6 +164,7 @@
 							<th>Species</th>
 							<th>ENSEMBL ID</th>
 							<th>Gene</th>
+							<th>Expression</th>
 							<th><em>log<sub>2</sub></em> Fold Change</em></th>
 							<th>FDR</em></th>
 						</thead>		
@@ -173,6 +174,9 @@
 								<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
 								<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
 								<td>{{resultRow.geneName}}</td>
+								<td ng-show="resultRow.upregulated"><i class="glyphicon glyphicon-arrow-up upregulated-icon"></i></td>
+								<td ng-show="resultRow.downregulated"><i class="glyphicon glyphicon-arrow-down downregulated-icon"></i></td>
+								<td ng-show="resultRow.not_differentially_expressed"></td>
 								<td>{{resultRow.log2fc}}</td>
 								<td>{{resultRow.fdr}}</td>
 							</tr>

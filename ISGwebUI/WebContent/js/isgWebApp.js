@@ -242,7 +242,10 @@ function ($scope, $http, dialogs) {
 							  log2fc: gene[3] == null ? '-' : gene[3],
 							  fdr: gene[4] == null ? '-' : gene[4],
 							  percId: gene[5] == null ? '-' : gene[5],
-							  rowClass: oddCluster ? 'active' : 'normal'
+							  rowClass: oddCluster ? 'active' : 'normal',
+							  upregulated: gene[8] == true,
+							  downregulated: gene[9] == true,
+							  not_differentially_expressed: gene[8] == false && gene[9] == false
 						  };
 					  if(firstRowInSpecies == null) {
 						  firstRowInSpecies = row;
@@ -262,6 +265,7 @@ function ($scope, $http, dialogs) {
 			  oddCluster = !oddCluster
 		  });
 		  $scope.resultRows = resultRows;
+		  console.log("resultRows", $scope.resultRows);
 	  }
 	  
   } ]);
