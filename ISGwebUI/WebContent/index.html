@@ -23,20 +23,30 @@
 
 <div class="container" ng-app="isgWebApp">
 
+
+
 	<div ng-controller="isgWebAppCtrl">
-		<h2>ISG Cluster Database</h2>
-		<p>
-		<b>Interferon-stimulated genes</b> (ISGs) are genes whose expression is affected by interferon. 
-		ISGs may be duplicated within the genome of a species, and genes in different species may be orthologous.
-		These related ISGs therefore form <b>orthologous clusters</b>.
-		</p>
-		<p>
-		Within an orthologous cluster, the effect of interferon varies: some genes are up-regulated, 
-		others down-regulated, still others are not differentially expresssed. 
-		<p>
-		This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
-		For each gene, transcriptomics results for the differential expression of the gene are included.
-		</p>
+		<h2>Orthologous Clusters of Interferon-Stimulated Genes</h2>
+		<div class="row">
+			<div class="col-md-8"
+				<p>
+				<b>Interferon-stimulated genes</b> (ISGs) are genes whose expression is affected by interferon. 
+				ISGs may be duplicated within the genome of a species, and genes in different species may be orthologous.
+				These related ISGs therefore form <b>orthologous clusters</b>.
+				</p>
+				<p>
+				Within an orthologous cluster, the effect of interferon varies: some genes are up-regulated, 
+				others down-regulated, still others are not differentially expresssed. 
+				<p>
+				This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
+				For each gene, transcriptomics results for the differential expression of the gene are included.
+				</p>
+			</div>
+			<div class="col-md-4"
+				<p><img alt="MRC-University of Glasgow Centre for Virus Research" src="images/CVRLogo.png"></p>
+				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><small>MRC-University of Glasgow Centre for Virus Research</small></a></p>
+			</div>
+		</div>
 				<p>Gene expression parameters</p>
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
@@ -172,7 +182,8 @@
 							<tr class="{{resultRow.rowClass}}" ng-repeat="resultRow in resultRows track by $index">
 								<td ng-show="resultRow.orthoClusterId" rowSpan="{{resultRow.numRowsInCluster}}">{{resultRow.orthoClusterId}}</td>
 								<td ng-show="resultRow.species" rowSpan="{{resultRow.numRowsInSpecies}}">{{resultRow.species}}</td>
-								<td><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
+								<td ng-show="!resultRow.ensemblId.startsWith('ENSCVR')"><a href="http://www.ensembl.org/Gene/Summary?g={{resultRow.ensemblId}}" target="_blank">{{resultRow.ensemblId}}</a></td>
+								<td ng-show="resultRow.ensemblId.startsWith('ENSCVR')">CVR-defined gene: {{resultRow.ensemblId}}</td>
 								<td>{{resultRow.geneName}}</td>
 								<td ng-show="resultRow.upregulated"><i class="glyphicon glyphicon-arrow-up upregulated-icon"></i></td>
 								<td ng-show="resultRow.downregulated"><i class="glyphicon glyphicon-arrow-down downregulated-icon"></i></td>

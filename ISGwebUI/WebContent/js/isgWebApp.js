@@ -30,9 +30,22 @@ function ($scope, $http, dialogs) {
 	  $scope.resetGeneRegulationParams();
 
 	  $scope.setOnAllSpeciesCriteria = function(field) {
+		  // set this field true for all species, except when it already is, in which case set to false for all species.
+		  var allTrue = true;
 		  _.each($scope.speciesCriteria, function(crit) {
-			  crit[field] = true;
+			  if(crit[field] != true) {
+				  allTrue = false;
+			  }
 		  });
+		  if(allTrue) {
+			  _.each($scope.speciesCriteria, function(crit) {
+				  crit[field] = false;
+			  });
+		  } else {
+			  _.each($scope.speciesCriteria, function(crit) {
+				  crit[field] = true;
+			  });
+		  }
 	  }
 
 	  $scope.validateParam = function(min, max, value, defaultValue) {
