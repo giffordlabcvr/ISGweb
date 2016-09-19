@@ -1,10 +1,56 @@
 apply plugin: 'war'
+apply plugin: 'org.hidetake.ssh'
+
 
 
 
 war {
 	webAppDirName = 'WebContent'
 }
+
+
+remotes {
+  isg_web_aws {
+    host = '52.48.126.136'
+    user = 'ubuntu'
+    identity = file('/Users/joshsinger/.ssh/isg_web.pem')
+  }
+}
+
+buildscript {
+  repositories {
+    // for ssh-deploy stuff
+    jcenter()
+  }
+  dependencies {
+    classpath group: 'org.hidetake', name: 'gradle-ssh-plugin', version: '1.1.3'
+  }
+}
+
+
+task deployUiWarIsgWebAWS(dependsOn: ['war']) {
+  ext.IsgWebUiWarFile = new File(buildDir, '/libs/ISGwebUI.war')
+  ext.IsgWebUiWarTouchfile = new File(buildDir, '/deployUiWarIsgWebAWS.touchfile')
+  inputs.file IsgWebUiWarFile
+  outputs.file IsgWebUiWarTouchfile
+  doLast {
+	  println "Uploading "+IsgWebUiWarFile.name
+	  ssh.run {
+	    session(remotes.isg_web_aws) {
+	      put from: IsgWebUiWarFile.absolutePath, into: '/tmp/ISGwebUI.war'
+	      execute 'sudo service tomcat7 stop'
+	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI'
+	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI.war'
+	      execute 'sudo mv /tmp/ISGwebUI.war /var/lib/tomcat7/webapps'
+	      execute 'sudo service tomcat7 start'
+	    }
+	  }
+	  IsgWebUiWarTouchfile.delete()
+	  buildDir.mkdirs()
+	  IsgWebUiWarTouchfile.createNewFile()
+  }
+}
+
 
 
 
