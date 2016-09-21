@@ -45,7 +45,17 @@
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/net.sf.trove4j/trove4j/3.0.3/109c5be93362e6e651e417c51d1863477a22969c/trove4j-3.0.3-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/net.sf.trove4j/trove4j/3.0.3/42ccaf4761f0dfdfa805c9e340d99a755907e2dd/trove4j-3.0.3.jar" exported="true">
+	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-core/6.1.0/393c376eedc5eece83cd56815eff38b847ba3f08/lucene-core-6.1.0-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-core/6.1.0/763361bd8cb48161ae28d67a7ca20c4abf194ecb/lucene-core-6.1.0.jar" exported="true">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-analyzers-common/6.1.0/83941df48555230abc4d0e8096196d422a4b8fae/lucene-analyzers-common-6.1.0-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-analyzers-common/6.1.0/20c3c3a717a225df0b462216e70a57922a8edd28/lucene-analyzers-common-6.1.0.jar" exported="true">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-queryparser/6.1.0/8310b036997f6b60f7c7add07b44c8aa78d50d9c/lucene-queryparser-6.1.0-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-queryparser/6.1.0/6b9e5e3dfc5b3c2689dcdc63d115c06be06c3837/lucene-queryparser-6.1.0.jar" exported="true">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
@@ -86,6 +96,16 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.jvnet.mimepull/mimepull/1.9.5/5b8fcbebc4a90092a00048cfac5eaa9cc2fc6e42/mimepull-1.9.5-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.jvnet.mimepull/mimepull/1.9.5/4ae665c707798da16886f916cda02ec61ea538f6/mimepull-1.9.5.jar" exported="true">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-queries/6.1.0/360a5dac709f3ecedecfe43de89e92c18ab7279b/lucene-queries-6.1.0-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-queries/6.1.0/2239ddd94a44d627b667221bdf129681af85ba51/lucene-queries-6.1.0.jar" exported="true">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-sandbox/6.1.0/ee0411ac7e5b80db4d8169e1e6e4ac539f10da04/lucene-sandbox-6.1.0-sources.jar" kind="lib" path="/Users/joshsinger/.gradle/caches/modules-2/files-2.1/org.apache.lucene/lucene-sandbox/6.1.0/53d35813f366d70ae0aef99d4f567d007290bdd2/lucene-sandbox-6.1.0.jar" exported="true">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>

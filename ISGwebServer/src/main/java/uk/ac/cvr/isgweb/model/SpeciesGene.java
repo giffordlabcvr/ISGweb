@@ -1,7 +1,11 @@
 package uk.ac.cvr.isgweb.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpeciesGene {
 
+	private List<OrthoCluster> orthoClusters = new ArrayList<OrthoCluster>();
 	private Species species;
 	private String ensembleId;
 	private String geneName;
@@ -12,6 +16,11 @@ public class SpeciesGene {
 	private Boolean isDifferentiallyExpressed = true;
 	private Boolean anyHomology = true;
 	
+	
+	
+	public List<OrthoCluster> getOrthoClusters() {
+		return orthoClusters;
+	}
 	public Species getSpecies() {
 		return species;
 	}

@@ -10,6 +10,7 @@ import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import uk.ac.cvr.isgweb.database.IsgDatabase;
+import uk.ac.cvr.isgweb.textsearch.IsgTextSearch;
 
 @WebListener
 @ApplicationPath("/")
@@ -30,6 +31,8 @@ public class IsgWebServerApplication extends ResourceConfig implements ServletCo
 	public void contextInitialized(ServletContextEvent sce) {
 		// init the database on startup
 		IsgDatabase.getInstance();
+		// init the text search on startup
+		IsgTextSearch.getInstance();
 	}
 
 	@Override

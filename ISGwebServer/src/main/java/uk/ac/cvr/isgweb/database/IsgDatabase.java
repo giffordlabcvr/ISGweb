@@ -3,8 +3,10 @@ package uk.ac.cvr.isgweb.database;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,7 +22,13 @@ public class IsgDatabase {
 
 	public static Logger logger = Logger.getLogger("uk.ac.cvr.isg.database");
 	private static IsgDatabase instance;
+	// orthoCluster ID to orthoCluster
 	private Map<String, OrthoCluster> orthoClusterIndex = new LinkedHashMap<String, OrthoCluster>();
+	// ENSEMBL ID to list of species genes
+	private Map<String, List<SpeciesGene>> speciesGeneIndex = new LinkedHashMap<String, List<SpeciesGene>>();
+	// Gene name to list of ENSEMBL IDs
+	private Map<String, Set<String>> geneNameToEnsemblIds = new LinkedHashMap<String, Set<String>>();
+	
 	private int expectedNumColumns;
 
 	private IsgDatabase() {
@@ -90,10 +98,52 @@ public class IsgDatabase {
 				int columnIndex = getColumnIndex(species, speciesGeneField);
 				speciesGeneField.processCellValue(speciesGene, row[columnIndex]);
 			}
+			String ensembleId = speciesGene.getEnsembleId();
+			List<SpeciesGene> speciesGenesWithEnsemblId = 
+				speciesGeneIndex.computeIfAbsent(ensembleId, ensId -> new ArrayList<SpeciesGene>());
+
+//			if(speciesGene.getSpecies() != Species.gallus_gallus && speciesGenesWithEnsemblId.size() > 0) {
+//			throw new RuntimeException("Multiple SpeciesGene instances found for non-chicken ENSEMBL ID "+ensembleId);
+//			}
+			
+			for(SpeciesGene existingGene: speciesGenesWithEnsemblId) {
+				if(!equalFieldValues(existingGene.getGeneName(), speciesGene.getGeneName())) {
+					throw new RuntimeException("Multiple SpeciesGene instances with ENSEMBL ID "+ensembleId+" have different Gene names");
+				}
+				if(!equalFieldValues(existingGene.getLog2foldChange(), speciesGene.getLog2foldChange())) {
+					throw new RuntimeException("Multiple SpeciesGene instances with ENSEMBL ID "+ensembleId+" have different Log2FC values");
+				}
+				if(!equalFieldValues(existingGene.getFdr(), speciesGene.getFdr())) {
+					throw new RuntimeException("Multiple SpeciesGene instances with ENSEMBL ID "+ensembleId+" have different FDR values");
+				}
+			}
+			
+			speciesGenesWithEnsemblId.add(speciesGene);
+			
+			
 			orthoCluster.getSpeciesToGenes()
 				.computeIfAbsent(species, sp -> new ArrayList<SpeciesGene>())
 				.add(speciesGene);
+
+			String geneName = speciesGene.getGeneName();
+			if(geneName != null) {
+				geneNameToEnsemblIds
+					.computeIfAbsent(geneName, gn -> new LinkedHashSet<String>())
+					.add(speciesGene.getEnsembleId());
+				
+			}
+				
 		}
+	}
+	
+	private boolean equalFieldValues(Object value1, Object value2) {
+		if(value1 == null) {
+			return value2 == null;
+		}
+		if(value2 == null) {
+			return value1 == null;
+		}
+		return value1.equals(value2);
 	}
 
 	private int getColumnIndex(Species species,
@@ -204,7 +254,7 @@ public class IsgDatabase {
 				if(nullValue(cellValue)) {
 					return;
 				}
-				if(cellValue.startsWith("Not differentially expresse")) {
+				if(cellValue.equals("Not differentially expressed")) {
 					speciesGene.setIsDifferentiallyExpressed(false);
 					return;
 				}
@@ -234,6 +284,14 @@ public class IsgDatabase {
 			});
 		}
 		return orthoClusterStream.collect(Collectors.toList());
+	}
+
+	public Map<String, List<SpeciesGene>> getSpeciesGeneIndex() {
+		return speciesGeneIndex;
+	}
+
+	public Map<String, Set<String>> getGeneNameToEnsemblIds() {
+		return geneNameToEnsemblIds;
 	}
 
 	
