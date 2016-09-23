@@ -32,7 +32,6 @@ public class IsgTextSearch {
 	
 	private Directory index = new RAMDirectory();
 	private Analyzer analyzer = new SimpleAnalyzer();
-	// private Analyzer analyzer = new GeneNameAnalyzer();
 
 	
 	private IsgTextSearch() {
@@ -49,7 +48,7 @@ public class IsgTextSearch {
 	private void index(IsgDatabase isgDatabase) {
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		IndexWriter indexWriter;
-		logger.info("Indexing gene names");
+		logger.info("Indexing genes");
 		try {
 			indexWriter = new IndexWriter(index, config);
 		} catch(IOException ioe) {
@@ -79,23 +78,41 @@ public class IsgTextSearch {
 		w.addDocument(doc);
 	}
 	
-	private ScoreDoc[] searchTitle(IndexSearcher searcher, String queryString, int hitsPerPage) throws ParseException, IOException {
+	public ScoreDoc[] searchGeneName(IndexSearcher searcher, String queryString, int hitsPerPage) {
+		if(!queryString.matches("[A-Za-z0-9_-]+")) {
+			return new ScoreDoc[0];
+		}
 		QueryParser queryParser = new QueryParser("geneName", analyzer);
 		queryParser.setAllowLeadingWildcard(true);
-		Query q = queryParser.parse("*"+queryString+"*");
-		TopDocs docs = searcher.search(q, hitsPerPage);
+		Query q;
+		try {
+			q = queryParser.parse("*"+queryString+"*");
+		} catch (ParseException e) {
+			throw new RuntimeException("Unexpected ParseException: "+e.getMessage(), e);
+		}
+		TopDocs docs;
+		try {
+			docs = searcher.search(q, hitsPerPage);
+		} catch (IOException e) {
+			throw new RuntimeException("Unexpected IOException: "+e.getMessage(), e);
+		}
 		return docs.scoreDocs;
 	}
 
-	public IndexSearcher getSearcher() throws IOException {
-		IndexReader reader = DirectoryReader.open(index);
+	public IndexSearcher getSearcher() {
+		IndexReader reader;
+		try {
+			reader = DirectoryReader.open(index);
+		} catch (IOException e) {
+			throw new RuntimeException("Unexpected IOException: "+e.getMessage(), e);
+		}
 		return new IndexSearcher(reader);
 	}
 
 	public static void main(String[] args) throws Exception {
 		IsgTextSearch instance = getInstance();
 		IndexSearcher searcher = instance.getSearcher();
-		ScoreDoc[] hits = instance.searchTitle(searcher, "OAS", 20);
+		ScoreDoc[] hits = instance.searchGeneName(searcher, "OAS", 20);
 		System.out.println("Found " + hits.length + " hits.");
 		for(int i=0;i<hits.length;++i) {
 		    int docId = hits[i].doc;

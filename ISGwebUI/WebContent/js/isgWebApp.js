@@ -1,4 +1,4 @@
-var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','dialogs.main']);
+var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','dialogs.main','autocomplete']);
 
 
 isgWebApp.controller('isgWebAppCtrl', 
@@ -11,6 +11,12 @@ function ($scope, $http, dialogs) {
 	  $scope.species = {};
 	  $scope.speciesCriteria = [];
 	  $scope.geneRegulationParams = null;
+	  
+	  $scope.searchByGeneName = true;
+	  $scope.searchByPresenceExpression = false;
+	  
+	  $scope.geneNameQuery = "";
+	  $scope.suggestedGeneNames = [];
 	  
 	  $scope.firstClusterIndex = null;
 	  $scope.lastClusterIndex = null;
@@ -173,7 +179,7 @@ function ($scope, $http, dialogs) {
 	  }
 
 	  
-	  $scope.runQuery = function() {
+	  $scope.runSpeciesCriteriaQuery = function() {
 
 		  $scope.geneRegulationParams.upregulatedMinLog2FC = 
 			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.upregulatedMinLog2FC, 0.0));
@@ -202,6 +208,29 @@ function ($scope, $http, dialogs) {
 		    });
 	  }
 
+	  
+	  $scope.suggestedGeneNames = [];
+
+       // 
+       $scope.updateSuggestedGeneNames = function(queryText){
+			  console.info('updating suggested gene names: ', queryText);
+    	   $http.post("../../ISGwebServer/suggestGeneNames", {
+    		   queryText: queryText,
+    		   maxHits: 10
+    	   })
+		    .success(function(data, status, headers, config) {
+				  console.info('success', data);
+				  $scope.suggestedGeneNames = data.hits;
+		    })
+		    .error(function(data, status, headers, config) {
+				  console.info('error', data);
+		    });
+       }
+	  
+	  
+	  $scope.runGeneNameQuery = function() {
+	  }
+	  
 	  $scope.firstPage = function() {
 		  $scope.firstClusterIndex = 1;
 		  $scope.lastClusterIndex = Math.min($scope.orthoClusters.length, $scope.clustersPerPage);

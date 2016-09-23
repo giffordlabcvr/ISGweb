@@ -47,6 +47,30 @@
 				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><small>MRC-University of Glasgow Centre for Virus Research</small></a></p>
 			</div>
 		</div>
+		
+		<accordion close-others="true">
+			<accordion-group is-open="searchByGeneName">
+				<accordion-heading>
+					Search clusters by gene name
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByGeneName, 'glyphicon-chevron-right': !searchByGeneName}"></i>
+				</accordion-heading>
+			
+				<table class="table table-nonfluid" style="margin: 0px;">
+						<tr>							
+								<td style="border-style: none;">
+									<autocomplete ng-model="geneNameQuery" data="suggestedGeneNames" on-type="updateSuggestedGeneNames" attr-placeholder="Enter gene name"></autocomplete>
+								</td>
+						          <td style="border-style: none;">
+									<button type="button" class="btn btn-default" ng-click="runGeneNameQuery()" >Run query</button>
+						          </td>
+						</tr>
+				</table>
+	        </accordion-group>
+			<accordion-group is-open="searchByPresenceExpression">
+				<accordion-heading>
+					Search clusters by presence / expression in species
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
+				</accordion-heading>
 				<p>Gene expression parameters</p>
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
@@ -137,9 +161,18 @@
 				<p><button class="btn btn-default" 
 				ng-click="resetSpeciesCriteria()">Reset criteria</button></p>
 				<p><button type="button" class="btn btn-default" 
-				ng-click="runQuery()" >Run query</button></p>
+				ng-click="runSpeciesCriteriaQuery()">Run query</button></p>
+
+			</accordion-group>
+		</accordion>
+
+				
+				
+		
+		
+				
 			<div ng-show="resultRows">
-				<h3>Results</h3>
+				<h2>Results</h2>
 				<div ng-show="resultRows.length == 0">No clusters found for this query</div>
 				<div ng-show="resultRows.length > 0">
 					<div class='table query-table'>

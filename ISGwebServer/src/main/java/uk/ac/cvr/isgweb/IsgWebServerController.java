@@ -1,15 +1,20 @@
 package uk.ac.cvr.isgweb;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
@@ -22,6 +27,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+
 import uk.ac.cvr.isgweb.database.GeneRegulationParams;
 import uk.ac.cvr.isgweb.database.IsgDatabase;
 import uk.ac.cvr.isgweb.database.SpeciesCriterion;
@@ -29,6 +38,7 @@ import uk.ac.cvr.isgweb.document.JsonConversions;
 import uk.ac.cvr.isgweb.document.JsonUtils;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
+import uk.ac.cvr.isgweb.textsearch.IsgTextSearch;
 
 public class IsgWebServerController {
 
@@ -80,6 +90,47 @@ public class IsgWebServerController {
 		} 
 	} 
 
+	@POST()
+	@Path("/suggestGeneNames")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String suggestGeneNames(String requestString, @Context HttpServletResponse response) {
+		try {
+			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
+			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
+
+			String queryText = ((JsonString) requestObj.get("queryText")).getString();
+			int maxHits = ((JsonNumber) requestObj.get("maxHits")).intValue();
+			IsgTextSearch isgTextSearch = IsgTextSearch.getInstance();
+			
+			IndexSearcher searcher = isgTextSearch.getSearcher();
+			ScoreDoc[] geneNameHits = isgTextSearch.searchGeneName(searcher, queryText, maxHits);
+			List<Document> hitDocs = Arrays.asList(geneNameHits).stream().map(scoreDoc -> {
+				try {
+					return searcher.doc(scoreDoc.doc);
+				} catch (IOException ioe) {
+					throw new RuntimeException("Unexpected IO exception: "+ioe, ioe);
+				}
+			}).collect(Collectors.toList());
+			StringWriter stringWriter = new StringWriter();
+			JsonGenerator jsonGenerator = Json.createGenerator(stringWriter);
+			logger.log(Level.INFO, "Converting results to JSON...");
+			jsonGenerator.writeStartObject();
+			JsonConversions.hitsToJson(jsonGenerator, hitDocs);
+			jsonGenerator.writeEnd();
+			jsonGenerator.flush();
+			logger.log(Level.INFO, "Results converted");
+			
+			String resultString = stringWriter.toString();
+			addCacheDisablingHeaders(response);
+			return resultString;
+		} catch(Throwable th) {
+			logger.log(Level.SEVERE, "Error during POST /queryIsgs: "+th.getMessage(), th);
+			throw th;
+		} 
+	} 
+
+	
 	
 	@GET()
 	@Path("/species")

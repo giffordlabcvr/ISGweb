@@ -8,6 +8,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 
+import org.apache.lucene.document.Document;
+
 import uk.ac.cvr.isgweb.database.GeneRegulationParams;
 import uk.ac.cvr.isgweb.database.SpeciesCriterion;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
@@ -96,6 +98,14 @@ public class JsonConversions {
 		geneRegulationParams.setDownregulatedMaxLog2FoldChange(queryExprJsonObj.getJsonNumber("downregulatedMaxLog2FC").doubleValue());
 		geneRegulationParams.setMaxFDR(queryExprJsonObj.getJsonNumber("maxFDR").doubleValue());
 		return geneRegulationParams;
+	}
+
+	public static void hitsToJson(JsonGenerator jsonGenerator, List<Document> hitDocs) {
+		jsonGenerator.writeStartArray("hits");
+		for(Document hitDoc: hitDocs) {
+			jsonGenerator.write(hitDoc.get("geneName"));
+		}
+		jsonGenerator.writeEnd();
 	}
 
 	
