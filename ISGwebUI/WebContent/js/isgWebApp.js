@@ -1,4 +1,4 @@
-var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','dialogs.main','autocomplete']);
+var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','ngAnimate','dialogs.main','autocomplete']);
 
 
 isgWebApp.controller('isgWebAppCtrl', 
@@ -14,6 +14,7 @@ function ($scope, $http, dialogs) {
 	  
 	  $scope.searchByGeneName = true;
 	  $scope.searchByPresenceExpression = false;
+	  $scope.editGeneExpressionParams = false;
 	  
 	  $scope.geneNameQuery = "";
 	  $scope.suggestedGeneNames = [];
@@ -35,6 +36,7 @@ function ($scope, $http, dialogs) {
 
 	  $scope.resetGeneRegulationParams();
 
+	  
 	  $scope.setOnAllSpeciesCriteria = function(field) {
 		  // set this field true for all species, except when it already is, in which case set to false for all species.
 		  var allTrue = true;
@@ -190,7 +192,7 @@ function ($scope, $http, dialogs) {
 		  $scope.geneRegulationParams.maxFDR = 
 			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.maxFDR, 0.05));
 		  
-		  $http.post("../../ISGwebServer/queryIsgs", {
+		  $http.post("../../ISGwebServer/queryBySpeciesCriteria", {
 			  geneRegulationParams: $scope.geneRegulationParams,
 			  speciesCriteria: $scope.speciesCriteria
 			 })
@@ -208,6 +210,29 @@ function ($scope, $http, dialogs) {
 		    });
 	  }
 
+	  
+	  $scope.runGeneNameQuery = function() {
+		  console.info('querying by gene name');
+
+		  $http.post("../../ISGwebServer/queryByGeneName", {
+			  geneName: $scope.geneNameQuery,
+			  geneRegulationParams: $scope.geneRegulationParams
+			 })
+		    .success(function(data, status, headers, config) {
+				  console.info('success', data);
+				  $scope.orthoClusters = data.orthoClusters;
+				  if($scope.orthoClusters.length > 0) {
+					  $scope.firstPage();
+				  } else {
+					  $scope.resultRows = [];
+				  }
+		    })
+		    .error(function(data, status, headers, config) {
+				  console.info('error', data);
+		    });
+	  }
+
+	  
 	  
 	  $scope.suggestedGeneNames = [];
 
@@ -227,9 +252,6 @@ function ($scope, $http, dialogs) {
 		    });
        }
 	  
-	  
-	  $scope.runGeneNameQuery = function() {
-	  }
 	  
 	  $scope.firstPage = function() {
 		  $scope.firstClusterIndex = 1;

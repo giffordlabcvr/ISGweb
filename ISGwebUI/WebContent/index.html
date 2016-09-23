@@ -48,12 +48,12 @@
 			</div>
 		</div>
 		
-		<accordion close-others="true">
-			<accordion-group is-open="searchByGeneName">
-				<accordion-heading>
+		<uib-accordion close-others="true">
+			<uib-accordion-group is-open="searchByGeneName">
+				<uib-accordion-heading>
 					Search clusters by gene name
 					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByGeneName, 'glyphicon-chevron-right': !searchByGeneName}"></i>
-				</accordion-heading>
+				</uib-accordion-heading>
 			
 				<table class="table table-nonfluid" style="margin: 0px;">
 						<tr>							
@@ -61,37 +61,22 @@
 									<autocomplete ng-model="geneNameQuery" data="suggestedGeneNames" on-type="updateSuggestedGeneNames" attr-placeholder="Enter gene name"></autocomplete>
 								</td>
 						          <td style="border-style: none;">
-									<button type="button" class="btn btn-default" ng-click="runGeneNameQuery()" >Run query</button>
+									<button type="button" class="btn btn-default" ng-click="runGeneNameQuery()">Run query</button>
+									
 						          </td>
 						</tr>
 				</table>
-	        </accordion-group>
-			<accordion-group is-open="searchByPresenceExpression">
-				<accordion-heading>
+	        </uib-accordion-group>
+			<uib-accordion-group is-open="searchByPresenceExpression">
+				<uib-accordion-heading>
 					Search clusters by presence / expression in species
 					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
-				</accordion-heading>
-				<p>Gene expression parameters</p>
-				<table class="table table-bordered table-nonfluid">
-					<tbody>
-						<tr>							
-								<td><i class="glyphicon glyphicon-arrow-up upregulated-icon"></i> <b>Up-regulated genes:</b></td>
-								<td>log<sub>2</sub> FC &gt; <input class="param-text" type="text" 
-									ng-model="geneRegulationParams.upregulatedMinLog2FC"/></td>
-						</tr>
-						<tr>
-								<td><i class="glyphicon glyphicon-arrow-down downregulated-icon"></i> <b>Down-regulated genes:</b></td>
-								<td>log<sub>2</sub> FC &lt; <input class="param-text" type="text" ng-model="geneRegulationParams.downregulatedMaxLog2FC"/></td>
-						</tr>
-						<tr>
-								<td><b>False discovery rate:</b></td>
-								<td>FDR &lt; <input class="param-text" type="text" ng-model="geneRegulationParams.maxFDR"/></td>
-						</tr>
-					</tbody>
-				</table>
-				<p>Selected clusters must meet all of the following species criteria
+				</uib-accordion-heading>
+				
+				
+			<p>Selected clusters must meet all of the following species criteria:
 				</p>
-				<table class="table table-bordered">
+				<table class="table table-bordered"  style="margin: 0px;">
 					<tbody>
 						<tr>							
 							<td></td>
@@ -132,39 +117,92 @@
 								Ortholog:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requirePresent">Present</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requirePresent">Present</label>
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requireAbsent">Absent</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requireAbsent">Absent</label>
 								</div>
 							</td>
 							<td>
 								<i class="glyphicon glyphicon-arrow-up upregulated-icon"></i> Up-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requireUpregulated">Present</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requireUpregulated">Present</label>
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requireNotUpregulated">Absent</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requireNotUpregulated">Absent</label>
 								</div>
 							</td>
 							<td>
 								<i class="glyphicon glyphicon-arrow-down downregulated-icon"></i> Down-regulated gene:
 								<div class="btn-group">
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requireDownregulated">Present</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requireDownregulated">Present</label>
 									<label class="btn btn-default btn-xs ng-pristine ng-untouched ng-valid active" 
-										btn-checkbox ng-model="speciesCriterion.requireNotDownregulated">Absent</label>
+										uib-btn-checkbox ng-model="speciesCriterion.requireNotDownregulated">Absent</label>
 								</div>
 							</td>
 						</tr>
 					</tbody>	
 				</table>
-				<p><button class="btn btn-default" 
-				ng-click="resetSpeciesCriteria()">Reset criteria</button></p>
-				<p><button type="button" class="btn btn-default" 
-				ng-click="runSpeciesCriteriaQuery()">Run query</button></p>
+				<table class="table table-nonfluid" style="margin: 0px;">
+					<tr>
+						<td style="border-style: none; padding-left: 0px;">
+							<button type="button" class="btn btn-default"
+								ng-click="runSpeciesCriteriaQuery()">Run query</button>
+						</td>
+						<td style="border-style: none; padding-left: 0px;">
+							<button class="btn btn-default" ng-click="resetSpeciesCriteria()">Reset species criteria</button>
+						</td>
+					</tr>
+				</table>
 
-			</accordion-group>
-		</accordion>
+			</uib-accordion-group>
+
+			<uib-accordion-group is-open="editGeneExpressionParams">
+				<uib-accordion-heading>
+					Edit gene expression parameters
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
+				</uib-accordion-heading>
+
+			<table class="table table-nonfluid" style="margin: 0px;">
+				<tr>
+					<td style="border-style: none; padding-left: 0px;">
+						<table class="table table-bordered table-nonfluid"  style="margin: 0px;">
+							<tbody>
+								<tr>
+									<td><i
+										class="glyphicon glyphicon-arrow-up upregulated-icon"></i> <b>Up-regulated
+											genes:</b></td>
+									<td>log<sub>2</sub> FC &gt; <input class="param-text"
+										type="text"
+										ng-model="geneRegulationParams.upregulatedMinLog2FC" /></td>
+								</tr>
+								<tr>
+									<td><i
+										class="glyphicon glyphicon-arrow-down downregulated-icon"></i>
+										<b>Down-regulated genes:</b></td>
+									<td>log<sub>2</sub> FC &lt; <input class="param-text"
+										type="text"
+										ng-model="geneRegulationParams.downregulatedMaxLog2FC" /></td>
+								</tr>
+								<tr>
+									<td><b>False discovery rate:</b></td>
+									<td>FDR &lt; <input class="param-text" type="text"
+										ng-model="geneRegulationParams.maxFDR" /></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+					<td style="border-style: none; padding-left: 0px;">
+						<button class="btn btn-default"
+							ng-click="resetGeneRegulationParams()">Reset paramters</button>
+					</td>
+				</tr>
+			</table>
+
+			</uib-accordion-group>
+
+
+		</uib-accordion>
 
 				
 				
@@ -186,8 +224,8 @@
 							<button type="button" class="btn btn-default" 
 								ng-click="lastPage()">Last</button>
 						    
-							<div class="btn-group" dropdown is-open="status.isopen_numclusters">
-						      <button id="numclusters-button" type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+							<div class="btn-group" uib-dropdown is-open="status.isopen_numclusters">
+						      <button id="numclusters-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
 						        Clusters per page: {{clustersPerPage}} <span class="caret"></span>
 						      </button>
 						      <ul class="dropdown-menu" role="menu" aria-labelledby="numclusters-button">

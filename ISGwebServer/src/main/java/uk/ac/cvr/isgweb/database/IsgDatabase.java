@@ -2,6 +2,7 @@ package uk.ac.cvr.isgweb.database;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -276,7 +277,7 @@ public class IsgDatabase {
 		
 	}
 
-	public List<OrthoCluster> query(List<SpeciesCriterion> speciesCriteria, GeneRegulationParams geneRegulationParams) {
+	public List<OrthoCluster> queryBySpeciesCriteria(List<SpeciesCriterion> speciesCriteria, GeneRegulationParams geneRegulationParams) {
 		Stream<OrthoCluster> orthoClusterStream = orthoClusterIndex.values().stream();
 		for(SpeciesCriterion speciesCriterion: speciesCriteria) {
 			orthoClusterStream = orthoClusterStream.filter(cluster -> {
@@ -292,6 +293,10 @@ public class IsgDatabase {
 
 	public Map<String, Set<String>> getGeneNameToEnsemblIds() {
 		return geneNameToEnsemblIds;
+	}
+
+	public List<OrthoCluster> queryByGeneName(String geneName) {
+		return Collections.emptyList();
 	}
 
 	

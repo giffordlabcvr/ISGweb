@@ -53,10 +53,10 @@ public class IsgWebServerController {
 
 
 	@POST()
-	@Path("/queryIsgs")
+	@Path("/queryBySpeciesCriteria")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String queryIsgs(String requestString, @Context HttpServletResponse response) {
+	public String queryBySpeciesCriteria(String requestString, @Context HttpServletResponse response) {
 		try {
 			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
 			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
@@ -69,7 +69,7 @@ public class IsgWebServerController {
 
 			IsgDatabase isgDatabase = IsgDatabase.getInstance();
 			logger.log(Level.INFO, "Running query....");
-			List<OrthoCluster> resultOrthoClusters = isgDatabase.query(speciesCriteria, geneRegulationParams);
+			List<OrthoCluster> resultOrthoClusters = isgDatabase.queryBySpeciesCriteria(speciesCriteria, geneRegulationParams);
 			logger.log(Level.INFO, "Query complete");
 
 			StringWriter stringWriter = new StringWriter();
@@ -90,6 +90,45 @@ public class IsgWebServerController {
 		} 
 	} 
 
+	
+	@POST()
+	@Path("/queryByGeneName")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String queryByGeneName(String requestString, @Context HttpServletResponse response) {
+		try {
+			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
+			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
+
+			String geneName = ((JsonString) requestObj.get("geneName")).getString();
+
+			JsonObject geneRegulationParamsObj = ((JsonObject) requestObj.get("geneRegulationParams"));
+			GeneRegulationParams geneRegulationParams = JsonConversions.geneRegulationParamsFromJsonObj(geneRegulationParamsObj);
+
+			IsgDatabase isgDatabase = IsgDatabase.getInstance();
+			logger.log(Level.INFO, "Running query....");
+			List<OrthoCluster> resultOrthoClusters = isgDatabase.queryByGeneName(geneName);
+			logger.log(Level.INFO, "Query complete");
+
+			StringWriter stringWriter = new StringWriter();
+			JsonGenerator jsonGenerator = Json.createGenerator(stringWriter);
+			logger.log(Level.INFO, "Converting results to JSON...");
+			jsonGenerator.writeStartObject();
+			JsonConversions.orthoClustersToJsonArray(jsonGenerator, geneRegulationParams, resultOrthoClusters);
+			jsonGenerator.writeEnd();
+			jsonGenerator.flush();
+			logger.log(Level.INFO, "Results converted");
+			
+			String resultString = stringWriter.toString();
+			addCacheDisablingHeaders(response);
+			return resultString;
+		} catch(Throwable th) {
+			logger.log(Level.SEVERE, "Error during POST /queryIsgs: "+th.getMessage(), th);
+			throw th;
+		} 
+	} 
+
+	
 	@POST()
 	@Path("/suggestGeneNames")
 	@Consumes(MediaType.APPLICATION_JSON)
