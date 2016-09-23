@@ -66,7 +66,7 @@ function ($scope, $http, dialogs) {
 		 if(max != null && value >= max) {
 			 return defaultValue;
 		 }
-		 return value;
+		 return parseFloat(value);
 	  }  
 	  
 	  $scope.isNumeric = function(n) {
@@ -180,9 +180,7 @@ function ($scope, $http, dialogs) {
 			 $scope.orthoClusters = null; 
 	  }
 
-	  
-	  $scope.runSpeciesCriteriaQuery = function() {
-
+	  $scope.validateParams = function() {
 		  $scope.geneRegulationParams.upregulatedMinLog2FC = 
 			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.upregulatedMinLog2FC, 0.0));
 
@@ -191,6 +189,12 @@ function ($scope, $http, dialogs) {
 
 		  $scope.geneRegulationParams.maxFDR = 
 			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.maxFDR, 0.05));
+	  }
+	  
+	  
+	  $scope.runSpeciesCriteriaQuery = function() {
+		  
+		  $scope.validateParams();
 		  
 		  $http.post("../../ISGwebServer/queryBySpeciesCriteria", {
 			  geneRegulationParams: $scope.geneRegulationParams,
@@ -210,9 +214,9 @@ function ($scope, $http, dialogs) {
 		    });
 	  }
 
-	  
 	  $scope.runGeneNameQuery = function() {
-		  console.info('querying by gene name');
+
+		  $scope.validateParams();
 
 		  $http.post("../../ISGwebServer/queryByGeneName", {
 			  geneName: $scope.geneNameQuery,
@@ -232,13 +236,12 @@ function ($scope, $http, dialogs) {
 		    });
 	  }
 
-	  
-	  
+       
 	  $scope.suggestedGeneNames = [];
 
-       // 
-       $scope.updateSuggestedGeneNames = function(queryText){
-			  console.info('updating suggested gene names: ', queryText);
+      $scope.updateSuggestedGeneNames = function(queryText){
+    	  $scope.geneNameQuery = queryText;
+    	  
     	   $http.post("../../ISGwebServer/suggestGeneNames", {
     		   queryText: queryText,
     		   maxHits: 10
@@ -250,8 +253,13 @@ function ($scope, $http, dialogs) {
 		    .error(function(data, status, headers, config) {
 				  console.info('error', data);
 		    });
+    	   
        }
 	  
+      $scope.updateSelectedGeneName = function(selectedText){
+    	  $scope.geneNameQuery = selectedText;
+    	  $scope.runGeneNameQuery();
+      }
 	  
 	  $scope.firstPage = function() {
 		  $scope.firstClusterIndex = 1;
@@ -278,7 +286,6 @@ function ($scope, $http, dialogs) {
 	  }
 
 		$scope.$watch( 'clustersPerPage', function(newObj, oldObj) {
-			console.log('clustersPerPage', newObj);
 			if($scope.orthoClusters) {
 			  $scope.firstPage();
 			}

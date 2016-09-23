@@ -126,6 +126,8 @@ public class IsgDatabase {
 				.computeIfAbsent(species, sp -> new ArrayList<SpeciesGene>())
 				.add(speciesGene);
 
+			speciesGene.getOrthoClusters().add(orthoCluster);
+			
 			String geneName = speciesGene.getGeneName();
 			if(geneName != null) {
 				geneNameToEnsemblIds
@@ -296,7 +298,19 @@ public class IsgDatabase {
 	}
 
 	public List<OrthoCluster> queryByGeneName(String geneName) {
-		return Collections.emptyList();
+		Set<String> ensemblIds = geneNameToEnsemblIds.get(geneName);
+		if(ensemblIds == null) {
+			return Collections.emptyList();
+		}
+		return new ArrayList<OrthoCluster>(
+				ensemblIds.stream()
+					.map(eid -> speciesGeneIndex.get(eid))
+					.map(l -> { System.out.println("speciesGenes: "+l.size()); return l;})
+					.flatMap(geneList -> geneList.stream())
+					.map(gene -> gene.getOrthoClusters())
+					.map(l -> { System.out.println(l.size()); return l;})
+					.flatMap(clusterList -> clusterList.stream())
+					.collect(Collectors.toSet()));
 	}
 
 	

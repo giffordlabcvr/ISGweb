@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -31,7 +31,7 @@ public class IsgTextSearch {
 	private static IsgTextSearch instance;
 	
 	private Directory index = new RAMDirectory();
-	private Analyzer analyzer = new SimpleAnalyzer();
+	private Analyzer analyzer = new StandardAnalyzer();
 
 	
 	private IsgTextSearch() {
@@ -80,6 +80,7 @@ public class IsgTextSearch {
 	
 	public ScoreDoc[] searchGeneName(IndexSearcher searcher, String queryString, int hitsPerPage) {
 		if(!queryString.matches("[A-Za-z0-9_-]+")) {
+			logger.info("query did not match: "+queryString);
 			return new ScoreDoc[0];
 		}
 		QueryParser queryParser = new QueryParser("geneName", analyzer);

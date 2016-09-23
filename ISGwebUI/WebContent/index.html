@@ -58,7 +58,7 @@
 				<table class="table table-nonfluid" style="margin: 0px;">
 						<tr>							
 								<td style="border-style: none;">
-									<autocomplete ng-model="geneNameQuery" data="suggestedGeneNames" on-type="updateSuggestedGeneNames" attr-placeholder="Enter gene name"></autocomplete>
+									<autocomplete ng-model="geneNameTyped" data="suggestedGeneNames" on-type="updateSuggestedGeneNames" on-select="updateSelectedGeneName" attr-placeholder="Enter gene name"></autocomplete>
 								</td>
 						          <td style="border-style: none;">
 									<button type="button" class="btn btn-default" ng-click="runGeneNameQuery()">Run query</button>
@@ -162,7 +162,7 @@
 					Edit gene expression parameters
 					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
 				</uib-accordion-heading>
-
+			How genes are classified as up-regulated or down-regulated:
 			<table class="table table-nonfluid" style="margin: 0px;">
 				<tr>
 					<td style="border-style: none; padding-left: 0px;">
