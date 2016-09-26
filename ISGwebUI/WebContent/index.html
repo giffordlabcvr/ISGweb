@@ -43,12 +43,12 @@
 				</p>
 			</div>
 			<div class="col-md-4"
-				<p><img alt="MRC-University of Glasgow Centre for Virus Research" src="images/CVRLogo.png"></p>
+				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><img alt="MRC-University of Glasgow Centre for Virus Research" src="images/CVRLogo.png"/></a></p>
 				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><small>MRC-University of Glasgow Centre for Virus Research</small></a></p>
 			</div>
 		</div>
 		
-		<uib-accordion close-others="true">
+		<uib-accordion ng-cloak close-others="true">
 			<uib-accordion-group is-open="searchByGeneOrEnsemblId">
 				<uib-accordion-heading>
 					Search clusters by gene name or ENSEMBL ID
@@ -211,7 +211,7 @@
 		
 		
 				
-			<div ng-show="resultRows">
+			<div ng-cloak ng-show="resultRows">
 				<h2>Results</h2>
 				<div ng-show="resultRows.length == 0">No clusters found for this query</div>
 				<div ng-show="resultRows.length > 0">
