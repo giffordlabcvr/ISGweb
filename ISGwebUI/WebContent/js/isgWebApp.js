@@ -12,12 +12,12 @@ function ($scope, $http, dialogs) {
 	  $scope.speciesCriteria = [];
 	  $scope.geneRegulationParams = null;
 	  
-	  $scope.searchByGeneName = true;
+	  $scope.searchByGeneOrEnsemblId = true;
 	  $scope.searchByPresenceExpression = false;
 	  $scope.editGeneExpressionParams = false;
 	  
-	  $scope.geneNameQuery = "";
-	  $scope.suggestedGeneNames = [];
+	  $scope.geneOrEnsemblQuery = "";
+	  $scope.geneOrEnsemblSuggestions = [];
 	  
 	  $scope.firstClusterIndex = null;
 	  $scope.lastClusterIndex = null;
@@ -214,12 +214,12 @@ function ($scope, $http, dialogs) {
 		    });
 	  }
 
-	  $scope.runGeneNameQuery = function() {
+	  $scope.runGeneOrEnsemblQuery = function() {
 
 		  $scope.validateParams();
 
-		  $http.post("../../ISGwebServer/queryByGeneName", {
-			  geneName: $scope.geneNameQuery,
+		  $http.post("../../ISGwebServer/queryByGeneNameOrEnsemblId", {
+			  geneNameOrEnsemblId: $scope.geneOrEnsemblQuery,
 			  geneRegulationParams: $scope.geneRegulationParams
 			 })
 		    .success(function(data, status, headers, config) {
@@ -237,18 +237,18 @@ function ($scope, $http, dialogs) {
 	  }
 
        
-	  $scope.suggestedGeneNames = [];
+	  $scope.geneOrEnsemblSuggestions = [];
 
-      $scope.updateSuggestedGeneNames = function(queryText){
-    	  $scope.geneNameQuery = queryText;
+      $scope.updateGeneOrEnsemblSuggestions = function(queryText){
+    	  $scope.geneOrEnsemblQuery = queryText;
     	  
-    	   $http.post("../../ISGwebServer/suggestGeneNames", {
+    	   $http.post("../../ISGwebServer/suggestGeneOrEnsembl", {
     		   queryText: queryText,
     		   maxHits: 10
     	   })
 		    .success(function(data, status, headers, config) {
 				  console.info('success', data);
-				  $scope.suggestedGeneNames = data.hits;
+				  $scope.geneOrEnsemblSuggestions = data.hits;
 		    })
 		    .error(function(data, status, headers, config) {
 				  console.info('error', data);
@@ -256,9 +256,9 @@ function ($scope, $http, dialogs) {
     	   
        }
 	  
-      $scope.updateSelectedGeneName = function(selectedText){
-    	  $scope.geneNameQuery = selectedText;
-    	  $scope.runGeneNameQuery();
+      $scope.updateSelectedGeneOrEnsembl = function(selectedText){
+    	  $scope.geneOrEnsemblQuery = selectedText;
+    	  $scope.runGeneOrEnsemblQuery();
       }
 	  
 	  $scope.firstPage = function() {

@@ -44,14 +44,6 @@ public class IsgWebServerController {
 
 	public static Logger logger = Logger.getLogger("uk.ac.cvr.isgweb");
 	
-	private JsonWriterFactory jsonWriterFactory;
-	
-	public IsgWebServerController() {
-		this.jsonWriterFactory = Json.createWriterFactory(new LinkedHashMap<String, Object>());
-
-	}
-
-
 	@POST()
 	@Path("/queryBySpeciesCriteria")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -92,22 +84,22 @@ public class IsgWebServerController {
 
 	
 	@POST()
-	@Path("/queryByGeneName")
+	@Path("/queryByGeneNameOrEnsemblId")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String queryByGeneName(String requestString, @Context HttpServletResponse response) {
+	public String queryByGeneNameOrEnsemblId(String requestString, @Context HttpServletResponse response) {
 		try {
 			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
 			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
 
-			String geneName = ((JsonString) requestObj.get("geneName")).getString();
+			String geneNameOrEnsemblId = ((JsonString) requestObj.get("geneNameOrEnsemblId")).getString();
 
 			JsonObject geneRegulationParamsObj = ((JsonObject) requestObj.get("geneRegulationParams"));
 			GeneRegulationParams geneRegulationParams = JsonConversions.geneRegulationParamsFromJsonObj(geneRegulationParamsObj);
 
 			IsgDatabase isgDatabase = IsgDatabase.getInstance();
 			logger.log(Level.INFO, "Running query....");
-			List<OrthoCluster> resultOrthoClusters = isgDatabase.queryByGeneName(geneName);
+			List<OrthoCluster> resultOrthoClusters = isgDatabase.queryByGeneNameOrEnsemblId(geneNameOrEnsemblId);
 			logger.log(Level.INFO, "Query complete");
 
 			StringWriter stringWriter = new StringWriter();
@@ -130,10 +122,10 @@ public class IsgWebServerController {
 
 	
 	@POST()
-	@Path("/suggestGeneNames")
+	@Path("/suggestGeneOrEnsembl")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String suggestGeneNames(String requestString, @Context HttpServletResponse response) {
+	public String suggestGeneOrEnsembl(String requestString, @Context HttpServletResponse response) {
 		try {
 			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
 			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
@@ -142,20 +134,17 @@ public class IsgWebServerController {
 			int maxHits = ((JsonNumber) requestObj.get("maxHits")).intValue();
 			IsgTextSearch isgTextSearch = IsgTextSearch.getInstance();
 			
-			IndexSearcher searcher = isgTextSearch.getSearcher();
-			ScoreDoc[] geneNameHits = isgTextSearch.searchGeneName(searcher, queryText, maxHits);
-			List<Document> hitDocs = Arrays.asList(geneNameHits).stream().map(scoreDoc -> {
-				try {
-					return searcher.doc(scoreDoc.doc);
-				} catch (IOException ioe) {
-					throw new RuntimeException("Unexpected IO exception: "+ioe, ioe);
-				}
-			}).collect(Collectors.toList());
+			IndexSearcher geneNameSearcher = isgTextSearch.getGeneNameSearcher();
+			ScoreDoc[] geneNameHits = isgTextSearch.search(geneNameSearcher, IsgTextSearch.GENE_NAME_DOC_FIELD, queryText, maxHits);
+
+			IndexSearcher ensemblIdSearcher = isgTextSearch.getEnsemblIdSearcher();
+			ScoreDoc[] ensemblIdHits = isgTextSearch.search(ensemblIdSearcher, IsgTextSearch.ENSEMBL_ID_DOC_FIELD, queryText, maxHits);
+
 			StringWriter stringWriter = new StringWriter();
 			JsonGenerator jsonGenerator = Json.createGenerator(stringWriter);
 			logger.log(Level.INFO, "Converting results to JSON...");
 			jsonGenerator.writeStartObject();
-			JsonConversions.hitsToJson(jsonGenerator, hitDocs);
+			JsonConversions.hitsToJson(jsonGenerator, geneNameSearcher, geneNameHits, ensemblIdSearcher, ensemblIdHits, maxHits);
 			jsonGenerator.writeEnd();
 			jsonGenerator.flush();
 			logger.log(Level.INFO, "Results converted");
@@ -164,7 +153,7 @@ public class IsgWebServerController {
 			addCacheDisablingHeaders(response);
 			return resultString;
 		} catch(Throwable th) {
-			logger.log(Level.SEVERE, "Error during POST /queryIsgs: "+th.getMessage(), th);
+			logger.log(Level.SEVERE, "Error during POST /suggestGeneOrEnsembl: "+th.getMessage(), th);
 			throw th;
 		} 
 	} 
@@ -198,15 +187,6 @@ public class IsgWebServerController {
 		} 
 	} 
 
-	private String jsonObjectToString(JsonObject jsonObject) {
-		StringWriter sw = new StringWriter();
-		try (JsonWriter jsonWriter = jsonWriterFactory.createWriter(sw)) {
-			jsonWriter.writeObject(jsonObject);
-		}
-		return sw.toString();
-	}
-	
-	
 	private void addCacheDisablingHeaders(HttpServletResponse response) {
 		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.

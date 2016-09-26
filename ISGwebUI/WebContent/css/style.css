@@ -91,6 +91,10 @@ a {
   width: 60px;
 }
 
+.geneEnsemblInput {
+  width: 350px !important;
+}
+
 /* AUTOCOMPLETE */
 
 .autocomplete{

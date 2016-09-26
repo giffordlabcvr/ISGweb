@@ -26,7 +26,7 @@ public class IsgDatabase {
 	// orthoCluster ID to orthoCluster
 	private Map<String, OrthoCluster> orthoClusterIndex = new LinkedHashMap<String, OrthoCluster>();
 	// ENSEMBL ID to list of species genes
-	private Map<String, List<SpeciesGene>> speciesGeneIndex = new LinkedHashMap<String, List<SpeciesGene>>();
+	private Map<String, List<SpeciesGene>> ensemblIdToSpeciesGenes = new LinkedHashMap<String, List<SpeciesGene>>();
 	// Gene name to list of ENSEMBL IDs
 	private Map<String, Set<String>> geneNameToEnsemblIds = new LinkedHashMap<String, Set<String>>();
 	
@@ -101,7 +101,7 @@ public class IsgDatabase {
 			}
 			String ensembleId = speciesGene.getEnsembleId();
 			List<SpeciesGene> speciesGenesWithEnsemblId = 
-				speciesGeneIndex.computeIfAbsent(ensembleId, ensId -> new ArrayList<SpeciesGene>());
+				ensemblIdToSpeciesGenes.computeIfAbsent(ensembleId, ensId -> new ArrayList<SpeciesGene>());
 
 //			if(speciesGene.getSpecies() != Species.gallus_gallus && speciesGenesWithEnsemblId.size() > 0) {
 //			throw new RuntimeException("Multiple SpeciesGene instances found for non-chicken ENSEMBL ID "+ensembleId);
@@ -289,28 +289,36 @@ public class IsgDatabase {
 		return orthoClusterStream.collect(Collectors.toList());
 	}
 
-	public Map<String, List<SpeciesGene>> getSpeciesGeneIndex() {
-		return speciesGeneIndex;
+	public Map<String, List<SpeciesGene>> getEnsemblIdToSpeciesGenes() {
+		return ensemblIdToSpeciesGenes;
 	}
 
 	public Map<String, Set<String>> getGeneNameToEnsemblIds() {
 		return geneNameToEnsemblIds;
 	}
 
-	public List<OrthoCluster> queryByGeneName(String geneName) {
-		Set<String> ensemblIds = geneNameToEnsemblIds.get(geneName);
+	public List<OrthoCluster> queryByGeneNameOrEnsemblId(String geneNameOrEnsemblId) {
+		Set<String> ensemblIds = geneNameToEnsemblIds.get(geneNameOrEnsemblId);
 		if(ensemblIds == null) {
-			return Collections.emptyList();
-		}
-		return new ArrayList<OrthoCluster>(
-				ensemblIds.stream()
-					.map(eid -> speciesGeneIndex.get(eid))
-					.map(l -> { System.out.println("speciesGenes: "+l.size()); return l;})
+			List<SpeciesGene> speciesGenes = ensemblIdToSpeciesGenes.get(geneNameOrEnsemblId);
+			if(speciesGenes == null) {
+				return Collections.emptyList();
+			} else {
+				return new ArrayList<OrthoCluster>(
+						speciesGenes.stream()
+						.map(gene -> gene.getOrthoClusters())
+						.flatMap(clusterList -> clusterList.stream())
+						.collect(Collectors.toSet()));
+			}
+		} else {
+			return new ArrayList<OrthoCluster>(
+					ensemblIds.stream()
+					.map(eid -> ensemblIdToSpeciesGenes.get(eid))
 					.flatMap(geneList -> geneList.stream())
 					.map(gene -> gene.getOrthoClusters())
-					.map(l -> { System.out.println(l.size()); return l;})
 					.flatMap(clusterList -> clusterList.stream())
 					.collect(Collectors.toSet()));
+		}
 	}
 
 	

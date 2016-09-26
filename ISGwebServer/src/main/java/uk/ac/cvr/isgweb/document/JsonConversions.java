@@ -1,5 +1,7 @@
 package uk.ac.cvr.isgweb.document;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,12 +11,15 @@ import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
 
 import uk.ac.cvr.isgweb.database.GeneRegulationParams;
 import uk.ac.cvr.isgweb.database.SpeciesCriterion;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
 import uk.ac.cvr.isgweb.model.SpeciesGene;
+import uk.ac.cvr.isgweb.textsearch.IsgTextSearch;
 
 public class JsonConversions {
 
@@ -100,10 +105,66 @@ public class JsonConversions {
 		return geneRegulationParams;
 	}
 
-	public static void hitsToJson(JsonGenerator jsonGenerator, List<Document> hitDocs) {
+	public static void hitsToJson(JsonGenerator jsonGenerator, 
+			IndexSearcher geneNameSearcher, ScoreDoc[] geneNameScoreDocs, 
+			IndexSearcher ensemblIdSearcher, ScoreDoc[] ensemblIdScoreDocs, int maxHits) {
+		
+		int geneNameScoreDocIndex = 0;
+		int ensemblIdScoreDocIndex = 0;
+		int numHits = 0;
+		
 		jsonGenerator.writeStartArray("hits");
-		for(Document hitDoc: hitDocs) {
-			jsonGenerator.write(hitDoc.get("geneName"));
+		while(numHits < maxHits) {
+			String docField;
+			IndexSearcher searcher;
+			ScoreDoc scoreDoc = null;
+			
+			ScoreDoc geneNameScoreDoc = null;
+			ScoreDoc ensemblIdScoreDoc = null;
+			
+			if(geneNameScoreDocIndex < geneNameScoreDocs.length) {
+				geneNameScoreDoc = geneNameScoreDocs[geneNameScoreDocIndex];
+			} 
+			if(ensemblIdScoreDocIndex < ensemblIdScoreDocs.length) {
+				ensemblIdScoreDoc = ensemblIdScoreDocs[ensemblIdScoreDocIndex];
+			} 
+			if(geneNameScoreDoc == null) {
+				if(ensemblIdScoreDoc == null) {
+					break;
+				} else {
+					scoreDoc = ensemblIdScoreDoc;
+					searcher = ensemblIdSearcher;
+					docField = IsgTextSearch.ENSEMBL_ID_DOC_FIELD;
+					ensemblIdScoreDocIndex++;
+				}
+			} else {
+				if(ensemblIdScoreDoc == null) {
+					scoreDoc = geneNameScoreDoc;
+					searcher = geneNameSearcher;
+					docField = IsgTextSearch.GENE_NAME_DOC_FIELD;
+					geneNameScoreDocIndex++;
+				} else {
+					if(geneNameScoreDoc.score >= ensemblIdScoreDoc.score) {
+						scoreDoc = geneNameScoreDoc;
+						searcher = geneNameSearcher;
+						docField = IsgTextSearch.GENE_NAME_DOC_FIELD;
+						geneNameScoreDocIndex++;
+					} else {
+						scoreDoc = ensemblIdScoreDoc;
+						searcher = ensemblIdSearcher;
+						docField = IsgTextSearch.ENSEMBL_ID_DOC_FIELD;
+						ensemblIdScoreDocIndex++;
+					}
+				}
+			}
+			Document document;
+			try {
+				document = searcher.doc(scoreDoc.doc);
+			} catch (IOException ioe) {
+				throw new RuntimeException("Unexpected IO exception: "+ioe, ioe);
+			}
+			jsonGenerator.write(document.get(docField));
+			numHits++;
 		}
 		jsonGenerator.writeEnd();
 	}
