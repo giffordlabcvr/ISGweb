@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -40,17 +42,17 @@ public class IsgTextSearch {
 
 	
 	private IsgTextSearch() {
-		this.analyzer = new StandardAnalyzer();
-		/*try {
+		//this.analyzer = new StandardAnalyzer();
+		try {
 			this.analyzer = CustomAnalyzer.builder()
-	                .withTokenizer("standard")
+	                .withTokenizer(WhitespaceTokenizerFactory.class)
 	                //.addTokenFilter("standard")
-	                .addTokenFilter("lowercase")     
-	                .addTokenFilter("length", "min", "4", "max", "50")
+	                .addTokenFilter(LowerCaseFilterFactory.class)     
+	                //.addTokenFilter("length", "min", "4", "max", "50")
 	                .build();
 		} catch(IOException ioe) {
 			throw new RuntimeException("Unexpected IOException: "+ioe.getMessage(), ioe);
-		}*/
+		}
 		
 		IsgDatabase isgDatabase = IsgDatabase.getInstance();
 		indexGeneNames(isgDatabase);
@@ -137,15 +139,16 @@ public class IsgTextSearch {
 
 	
 	public ScoreDoc[] search(IndexSearcher searcher, String searchDocField, String queryString, int hitsPerPage) {
-		if(!queryString.matches("[A-Za-z0-9_-]+")) {
-			logger.info("query did not match: "+queryString);
-			return new ScoreDoc[0];
-		}
+//		if(!queryString.matches("[A-Za-z0-9_-]+")) {
+//			logger.info("query did not match: "+queryString);
+//			return new ScoreDoc[0];
+//		}
 		QueryParser queryParser = new QueryParser(searchDocField, analyzer);
+		String escapedQueryString = QueryParser.escape(queryString);
 		queryParser.setAllowLeadingWildcard(true);
 		Query q;
 		try {
-			q = queryParser.parse("*"+queryString+"*");
+			q = queryParser.parse("*"+escapedQueryString+"*");
 		} catch (ParseException e) {
 			throw new RuntimeException("Unexpected ParseException: "+e.getMessage(), e);
 		}
@@ -191,7 +194,7 @@ public class IsgTextSearch {
 	
 	
 		IndexSearcher searcher2 = instance.getEnsemblIdSearcher();
-		ScoreDoc[] hits2 = instance.search(searcher2, ENSEMBL_ID_DOC_FIELD, "89127", 10);
+		ScoreDoc[] hits2 = instance.search(searcher2, ENSEMBL_ID_DOC_FIELD, "HLA", 10);
 		System.out.println("Found " + hits2.length + " hits.");
 		for(int i=0;i<hits2.length;++i) {
 		    int docId = hits2[i].doc;

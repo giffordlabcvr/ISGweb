@@ -36,6 +36,11 @@ function ($scope, $http, dialogs) {
 
 	  $scope.resetGeneRegulationParams();
 
+	  $scope.myKeyDown = function(event) {
+		    if(event.keyCode == 13) {  
+		    	$scope.runGeneOrEnsemblQuery();
+		    }
+		}
 	  
 	  $scope.setOnAllSpeciesCriteria = function(field) {
 		  // set this field true for all species, except when it already is, in which case set to false for all species.
@@ -244,7 +249,7 @@ function ($scope, $http, dialogs) {
     	  
     	   $http.post("../../ISGwebServer/suggestGeneOrEnsembl", {
     		   queryText: queryText,
-    		   maxHits: 10
+    		   maxHits: 100
     	   })
 		    .success(function(data, status, headers, config) {
 				  console.info('success', data);

@@ -58,8 +58,8 @@
 				<table class="table table-nonfluid" style="margin: 0px;">
 						<tr>							
 								<td style="border-style: none;">
-									<autocomplete ng-model="geneOrEnsemblNameTyped" attr-input-class="geneEnsemblInput"
-										data="geneOrEnsemblSuggestions" on-type="updateGeneOrEnsemblSuggestions" 
+									<autocomplete ng-model="geneOrEnsemblNameTyped" attr-input-class="geneEnsemblInput" attr-ul-class="geneEnsemblDropdown"
+										data="geneOrEnsemblSuggestions" on-type="updateGeneOrEnsemblSuggestions" ng-keydown="myKeyDown($event)"
 										on-select="updateSelectedGeneOrEnsembl" attr-placeholder="Enter gene name or ENSEMBL ID"></autocomplete>
 								</td>
 						          <td style="border-style: none;">
@@ -176,7 +176,7 @@
 											genes:</b></td>
 									<td>log<sub>2</sub> FC &gt; <input class="param-text"
 										type="text"
-										ng-model="geneRegulationParams.upregulatedMinLog2FC" /></td>
+										ng-model="geneRegulationParams.upregulatedMinLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
 								</tr>
 								<tr>
 									<td><i
@@ -184,7 +184,7 @@
 										<b>Down-regulated genes:</b></td>
 									<td>log<sub>2</sub> FC &lt; <input class="param-text"
 										type="text"
-										ng-model="geneRegulationParams.downregulatedMaxLog2FC" /></td>
+										ng-model="geneRegulationParams.downregulatedMaxLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
 								</tr>
 								<tr>
 									<td><b>False discovery rate:</b></td>

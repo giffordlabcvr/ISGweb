@@ -1,13 +1,9 @@
 package uk.ac.cvr.isgweb;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -15,8 +11,6 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -27,7 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 
