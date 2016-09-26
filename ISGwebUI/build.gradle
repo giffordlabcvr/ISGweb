@@ -42,6 +42,7 @@ task deployUiWarIsgWebAWS(dependsOn: ['war']) {
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI.war'
 	      execute 'sudo mv /tmp/ISGwebUI.war /var/lib/tomcat7/webapps'
+	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/localhost/ISGwebUI'
 	      execute 'sudo service tomcat7 start'
 	    }
 	  }

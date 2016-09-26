@@ -105,6 +105,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer.war'
 	      execute 'sudo mv /tmp/ISGwebServer.war /var/lib/tomcat7/webapps'
+	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/localhost/ISGwebServer'
 	      execute 'sudo service tomcat7 start'
 	    }
 	  }
