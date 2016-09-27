@@ -235,6 +235,15 @@
 						        	Clusters per page: {{availableClustersPerPageValue}}</a></li>
 						      </ul>
 							</div>
+							<div class="btn-group" uib-dropdown is-open="status.isopen_download">
+						      <button id="download-button" type="button" class="btn btn-default" uib-dropdown-toggle ng-disabled="disabled">
+						        Download <span class="caret"></span>
+						      </button>
+						      <ul class="dropdown-menu" role="menu" aria-labelledby="download-button">
+						        <li ng-click="downloadResults('csv')" role="menuitem"><a>Comma-separated values (CSV)</a></li>
+						        <li ng-click="downloadResults('tab')" role="menuitem"><a>Tab-delimited</a></li>
+						      </ul>
+							</div>
 							<button type="button" class="btn btn-default" 
 								ng-click="clearResults()">Clear results</button>
 						    

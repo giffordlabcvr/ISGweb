@@ -1,9 +1,23 @@
-var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','ngAnimate','dialogs.main','autocomplete']);
+var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','ngAnimate','dialogs.main','autocomplete','ngFileSaver']);
+
+
+var userAgent = detect.parse(navigator.userAgent);
+
+console.log("userAgent.browser.family", userAgent.browser.family);
+console.log("userAgent.browser.name", userAgent.browser.name);
+console.log("userAgent.browser.version", userAgent.browser.version);
+
+console.log("userAgent.os.family", userAgent.os.family);
+console.log("userAgent.os.name", userAgent.os.name);
+console.log("userAgent.os.version", userAgent.os.version);
+console.log("userAgent.os.major", userAgent.os.major);
+console.log("userAgent.os.minor", userAgent.os.minor);
+console.log("userAgent.os.patch ", userAgent.os.patch );
 
 
 isgWebApp.controller('isgWebAppCtrl', 
-  [ '$scope', '$http', 'dialogs',
-function ($scope, $http, dialogs) {
+  [ '$scope', '$http', 'dialogs', 'FileSaver', 'Blob',
+function ($scope, $http, dialogs, FileSaver, Blob) {
 
 	  $scope.resultRows = null;
 	  $scope.orthoClusters = null;
@@ -183,6 +197,27 @@ function ($scope, $http, dialogs) {
 	  $scope.clearResults = function() {
 			 $scope.resultRows = null; 
 			 $scope.orthoClusters = null; 
+	  }
+	  
+	  $scope.downloadResults = function(fileType) {
+		  var lineFeedStyle = "lf";
+		  if(userAgent.os.family.indexOf("Windows") !== -1) {
+			  lineFeedStyle = "crlf";
+		  }
+		  
+		  $http.post("../../ISGwebServer/clusterResultsAsFile", {
+			  orthoClusters: $scope.orthoClusters,
+			  fileType: fileType,
+			  lineFeedStyle: lineFeedStyle
+		  })
+		  .success(function(data, status, headers, config) {
+			  console.info('success', data);
+			  var blob = new Blob([data.content], { type: data.contentType });
+			  FileSaver.saveAs(blob, data.fileName);
+		  })
+		  .error(function(data, status, headers, config) {
+			  console.info('error', data);
+		  });
 	  }
 
 	  $scope.validateParams = function() {
