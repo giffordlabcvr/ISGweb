@@ -29,6 +29,7 @@ public class IsgDatabase {
 	private Map<String, List<SpeciesGene>> ensemblIdToSpeciesGenes = new LinkedHashMap<String, List<SpeciesGene>>();
 	// Gene name to list of ENSEMBL IDs
 	private Map<String, Set<String>> geneNameToEnsemblIds = new LinkedHashMap<String, Set<String>>();
+	private Map<String, Set<String>> lowerCaseGeneNameToEnsemblIds = new LinkedHashMap<String, Set<String>>();
 	
 	private int expectedNumColumns;
 
@@ -133,7 +134,10 @@ public class IsgDatabase {
 				geneNameToEnsemblIds
 					.computeIfAbsent(geneName, gn -> new LinkedHashSet<String>())
 					.add(speciesGene.getEnsembleId());
-				
+				lowerCaseGeneNameToEnsemblIds
+					.computeIfAbsent(geneName.toLowerCase(), gn -> new LinkedHashSet<String>())
+					.add(speciesGene.getEnsembleId());
+
 			}
 				
 		}
@@ -299,6 +303,10 @@ public class IsgDatabase {
 
 	public List<OrthoCluster> queryByGeneNameOrEnsemblId(String geneNameOrEnsemblId) {
 		Set<String> ensemblIds = geneNameToEnsemblIds.get(geneNameOrEnsemblId);
+		if(ensemblIds == null) {
+			ensemblIds = lowerCaseGeneNameToEnsemblIds.get(geneNameOrEnsemblId.toLowerCase());
+		}
+		
 		if(ensemblIds == null) {
 			List<SpeciesGene> speciesGenes = ensemblIdToSpeciesGenes.get(geneNameOrEnsemblId);
 			if(speciesGenes == null) {

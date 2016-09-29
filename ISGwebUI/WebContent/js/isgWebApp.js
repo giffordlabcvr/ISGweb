@@ -297,6 +297,7 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
        }
 	  
       $scope.updateSelectedGeneOrEnsembl = function(selectedText){
+		  console.info('updateSelectedGeneOrEnsembl:selectedText', selectedText);
     	  $scope.geneOrEnsemblQuery = selectedText;
     	  $scope.runGeneOrEnsemblQuery();
       }

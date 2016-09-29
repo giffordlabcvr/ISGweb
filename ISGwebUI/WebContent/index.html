@@ -60,7 +60,7 @@
 								<td style="border-style: none;">
 									<autocomplete ng-model="geneOrEnsemblNameTyped" attr-input-class="geneEnsemblInput" attr-ul-class="geneEnsemblDropdown"
 										data="geneOrEnsemblSuggestions" on-type="updateGeneOrEnsemblSuggestions" ng-keydown="myKeyDown($event)"
-										on-select="updateSelectedGeneOrEnsembl" attr-placeholder="Enter gene name or ENSEMBL ID"></autocomplete>
+										on-select="updateSelectedGeneOrEnsembl" click-activation="true" no-auto-sort="true" attr-placeholder="Enter gene name or ENSEMBL ID"></autocomplete>
 								</td>
 						          <td style="border-style: none;">
 									<button type="button" class="btn btn-default" ng-click="runGeneOrEnsemblQuery()">Run query</button>
