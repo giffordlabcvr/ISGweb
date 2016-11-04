@@ -58,7 +58,24 @@ task initIsgWebAwsVm {
 			execute "sudo touch /etc/authbind/byport/80"
 			execute "sudo chmod 500 /etc/authbind/byport/80"
 			execute "sudo chown tomcat7 /etc/authbind/byport/80"
-			
+	    }
+	  }
+  }
+}
+
+// do this *after* deploying WARs for the first time.
+task deployServerXmlIsgWebAwsVm {
+  doLast {
+	  println "Stopping Tomcat"
+	  ssh.run {
+	    session(remotes.isg_web_aws) {
+	      execute 'sudo service tomcat7 stop'
+	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
+	      execute 'sleep 5'
+	    }
+	  }
+	  ssh.run {
+	    session(remotes.isg_web_aws) {
 
 			put from: 'isg_web_aws/server.xml', into: '/home/ubuntu/server.xml'
 			execute "sudo cp /home/ubuntu/server.xml /etc/tomcat7/server.xml"

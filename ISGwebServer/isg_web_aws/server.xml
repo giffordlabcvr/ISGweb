@@ -142,7 +142,7 @@
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
 	      <Context docBase="ISGwebServer" path="/ISGwebServer" reloadable="true" source="org.eclipse.jst.j2ee.server:ISGwebServer"/>
-	      <Context docBase="ISGwebUI" path="" reloadable="true" source="org.eclipse.jst.jee.server:ISGwebUI"/></Host>
+	      <Context docBase="ISGwebUI" path="" reloadable="true" source="org.eclipse.jst.jee.server:ISGwebUI"/>
       </Host>
     </Engine>
   </Service>
