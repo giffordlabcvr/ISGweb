@@ -108,7 +108,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	  println "Uploading "+IsgWsWarFile.name
 	  ssh.run {
 	    session(remotes.isg_web_aws) {
-	      put from: warFile.absolutePath, into: '/tmp/ISGwebServer.war'
+	      put from: IsgWsWarFile.absolutePath, into: '/tmp/ISGwebServer.war'
 	      execute 'sudo mkdir -p /var/lib/tomcat7/webapps'
 	      execute 'sudo chmod a+rwx /var/lib/tomcat7/webapps'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer'
