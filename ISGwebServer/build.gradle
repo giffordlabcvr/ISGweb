@@ -27,7 +27,6 @@ repositories {
 }
 
 // assumes Ubuntu 14.04
-// mafft download line might fail if they change the version available on the web.
 task initIsgWebAwsVm {
   doLast {
 	  ssh.run {
@@ -113,14 +112,14 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	      execute 'sudo chmod a+rwx /var/lib/tomcat7/webapps'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer.war'
-	      execute 'sudo mv /tmp/'+warFile.name+' /var/lib/tomcat7/webapps/ISGwebServer.war'
+	      execute 'sudo mv /tmp/ISGwebServer.war /var/lib/tomcat7/webapps/ISGwebServer.war'
 	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/isg.data.cvr.ac.uk/ISGwebServer'
 	      execute 'sudo rm -rf /var/cache/tomcat7/Catalina/isg.data.cvr.ac.uk/ISGwebServer'
 	      
 	    }
 	  }
 	  println "Starting Tomcat"
-	  sh.run {
+	  ssh.run {
 	    session(remotes.isg_web_aws) {
 	      execute 'sudo service tomcat7 start'
 	    }
