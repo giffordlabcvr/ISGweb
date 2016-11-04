@@ -29,18 +29,14 @@
 		<h2>Orthologous Clusters of Interferon-Stimulated Genes</h2>
 		<div class="row">
 			<div class="col-md-8"
-				<p>
-				<b>Interferon-stimulated genes</b> (ISGs) are genes whose expression is affected by interferon. 
-				ISGs may be duplicated within the genome of a species, and genes in different species may be orthologous.
-				These related ISGs therefore form <b>orthologous clusters</b>.
-				</p>
-				<p>
-				Within an orthologous cluster, the effect of interferon varies: some genes are up-regulated, 
-				others down-regulated, still others are not differentially expresssed. 
-				<p>
-				This database catalogues several thousand ISGs across 10 species, grouped into orthologous clusters. 
-				For each gene, transcriptomics results for the differential expression of the gene are included.
-				</p>
+			<p>
+			Interferon (IFN) is a cytokine secreted from cells upon detecting a pathogen. 
+			Reception of the IFN signal by a cell results in the differential expression of <b>interferon-stimulated genes</b> (ISGs). </p>
+			<p>
+			This database catalogues the differential expression of several thousand ISGs across 10 species in response to type I IFN. 
+			Due to the fact that not all species respond to IFN in the same way, and some species have more copies of a gene than others, 
+			genes are grouped into <b>orthologous clusters</b> to allow cross-species comparisons. 
+			</p>
 			</div>
 			<div class="col-md-4"
 				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><img alt="MRC-University of Glasgow Centre for Virus Research" src="images/CVRLogo.png"/></a></p>
@@ -69,15 +65,12 @@
 						</tr>
 				</table>
 	        </uib-accordion-group>
-			<uib-accordion-group is-open="searchByPresenceExpression">
+			<uib-accordion-group is-open="searchByPresenceExpressionSpecific">
 				<uib-accordion-heading>
-					Search clusters by presence / expression in species
-					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
+					Search clusters by presence / expression in specific species
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpressionSpecific, 'glyphicon-chevron-right': !searchByPresenceExpressionSpecific}"></i>
 				</uib-accordion-heading>
-				
-				
-			<p>Selected clusters must meet all of the following species criteria:
-				</p>
+				<p>Selected clusters must meet all of the following species criteria:</p>
 				<table class="table table-bordered"  style="margin: 0px;">
 					<tbody>
 						<tr>							
@@ -159,49 +152,139 @@
 
 			</uib-accordion-group>
 
+			<uib-accordion-group is-open="searchByPresenceExpressionNumber">
+				<uib-accordion-heading>
+					Search clusters by presence / expression in a number of species
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpressionNumber, 'glyphicon-chevron-right': !searchByPresenceExpressionNumber}"></i>
+				</uib-accordion-heading>
+				<p>Selected clusters must meet all of the following criteria:</p>
+				<table class="table table-bordered table-nonfluid"  style="margin: 0px;">
+					<tbody>
+						<tr>
+							<td>Orthologs must be present in</td>
+							<td>at least 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.presentMin"/> species and at most 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.presentMax"/> species</td>
+						</tr>
+						<tr>
+							<td>
+								<i class="glyphicon glyphicon-arrow-up upregulated-icon"></i>
+								Up-regulated genes must be present in
+							</td>
+							<td>at least 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.upRegulatedPresentMin"/> species and at most 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.upRegulatedPresentMax"/> species</td>
+						</tr>
+						<tr>
+							<td>
+								<i class="glyphicon glyphicon-arrow-down downregulated-icon"></i>
+								Down-regulated genes must be present in
+							</td>
+							<td>at least 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.downRegulatedPresentMin"/> species and at most 
+								<input class="param-text" type="text" ng-model="searchByNumberCriteria.downRegulatedPresentMax"/> species</td>
+						</tr>
+					</tbody>
+				</table>
+				<table class="table table-nonfluid" style="margin: 0px;">
+					<tr>
+						<td style="border-style: none; padding-left: 0px;">
+							<button type="button" class="btn btn-default"
+								ng-click="runSearchByNumberQuery()">Run query</button>
+						</td>
+						<td style="border-style: none; padding-left: 0px;">
+							<button class="btn btn-default" ng-click="resetSearchByNumberCriteria()">Reset criteria</button>
+						</td>
+					</tr>
+				</table>
+			
+	        </uib-accordion-group>
 			<uib-accordion-group is-open="editGeneExpressionParams">
 				<uib-accordion-heading>
-					Edit gene expression parameters
+					Differential expression parameters
 					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByPresenceExpression, 'glyphicon-chevron-right': !searchByPresenceExpression}"></i>
 				</uib-accordion-heading>
-			How genes are classified as up-regulated or down-regulated:
-			<table class="table table-nonfluid" style="margin: 0px;">
-				<tr>
-					<td style="border-style: none; padding-left: 0px;">
-						<table class="table table-bordered table-nonfluid"  style="margin: 0px;">
-							<tbody>
-								<tr>
-									<td><i
-										class="glyphicon glyphicon-arrow-up upregulated-icon"></i> <b>Up-regulated
-											genes:</b></td>
-									<td>log<sub>2</sub> FC &gt; <input class="param-text"
-										type="text"
-										ng-model="geneRegulationParams.upregulatedMinLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
-								</tr>
-								<tr>
-									<td><i
-										class="glyphicon glyphicon-arrow-down downregulated-icon"></i>
-										<b>Down-regulated genes:</b></td>
-									<td>log<sub>2</sub> FC &lt; <input class="param-text"
-										type="text"
-										ng-model="geneRegulationParams.downregulatedMaxLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
-								</tr>
-								<tr>
-									<td><b>False discovery rate:</b></td>
-									<td>FDR &lt; <input class="param-text" type="text"
-										ng-model="geneRegulationParams.maxFDR" /></td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-					<td style="border-style: none; padding-left: 0px;">
-						<button class="btn btn-default"
-							ng-click="resetGeneRegulationParams()">Reset paramters</button>
-					</td>
-				</tr>
-			</table>
-
+				How genes are classified as up-regulated or down-regulated:
+				<table class="table table-nonfluid" style="margin: 0px;">
+					<tr>
+						<td style="border-style: none; padding-left: 0px;">
+							<table class="table table-bordered table-nonfluid"  style="margin: 0px;">
+								<tbody>
+									<tr>
+										<td><i
+											class="glyphicon glyphicon-arrow-up upregulated-icon"></i> <b>Up-regulated
+												genes:</b></td>
+										<td>log<sub>2</sub> FC &gt; <input class="param-text"
+											type="text"
+											ng-model="geneRegulationParams.upregulatedMinLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
+									</tr>
+									<tr>
+										<td><i
+											class="glyphicon glyphicon-arrow-down downregulated-icon"></i>
+											<b>Down-regulated genes:</b></td>
+										<td>log<sub>2</sub> FC &lt; <input class="param-text"
+											type="text"
+											ng-model="geneRegulationParams.downregulatedMaxLog2FC" /> and FDR &lt; {{geneRegulationParams.maxFDR}}</td>
+									</tr>
+									<tr>
+										<td><b>False discovery rate:</b></td>
+										<td>FDR &lt; <input class="param-text" type="text"
+											ng-model="geneRegulationParams.maxFDR" /></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td style="border-style: none; padding-left: 0px;">
+							<button class="btn btn-default"
+								ng-click="resetGeneRegulationParams()">Reset paramters</button>
+						</td>
+					</tr>
+				</table>
 			</uib-accordion-group>
+			<uib-accordion-group is-open="userGuide">
+				<uib-accordion-heading>
+					User guide
+					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': userGuide, 'glyphicon-chevron-right': !userGuide}"></i>
+				</uib-accordion-heading>
+				
+				<h3>Orthologous clusters</h3>
+				<p>This database groups genes together in orthologous clusters, based on ENSEMBL annotations. Clusters may contain genes from different species i.e. orthologs. 
+				In some cases a gene has expanded within the species of a genome producing paralogs, so a cluster may also contain multiple genes from the same species. </p>
+				
+				<p>For some clusters there was no ENSEMBL-annotated ortholog in the genome of a given species. Some of these absent orthologs have been resolved through a BLAST approach, 
+				and others via in silico 'baiting' for reads matching the ortholog of a closely related species. These genes are prefixed with 'CVR-defined gene'.</p>
+
+				<p>Within an orthologous cluster, the effect of interferon varies: some genes are up-regulated, others down-regulated, still others are not differentially expressed.</p> 
+				
+				<h3>Searching</h3>
+				This web tool allows users to search for orthlogous clusters based on various kinds of search criteria.
+				
+				<h5><b>Search clusters by gene name or ENSEMBL ID</b></h5>
+				Simply type in a gene name or ENSEMBL ID; the web tool will suggest matches from the database and return the cluster containing the specified gene.
+				
+				<h5><b>Search clusters by presence / expression in specific species</b></h5>
+				Select clusters based on the presence and expression characteristics of genes in particular species. 
+				For example:
+				<em>"All clusters which contain orthologs in all the mammal species, including an up-regulated gene in humans and a down-regulated gene in cattle and sheep".</em>
+				
+				<h5><b>Search clusters by presence / expression in a number of species</b></h5>
+				Select clusters based on the presence and expression characteristics of genes in a certain number of species. 
+				For example: 
+				<em>"All clusters which contain an ortholog in at least 5 species, including at least 3 species where there is an up-regulated gene".</em>
+
+				<h3>Results</h4>
+				<p>All clusters matching the criteria provided will be output. Clusters will specify all the genes within the cluster, grouped by species. Some species may not posess an ortholog 
+				within the cluster; these species will be absent.</p>
+				<p>If a gene's differential expression value is significant, it will have a red (significantly upregulated) or blue (significantly downregulated) 
+				arrow in the 'Expression' column, otherwise this column is blank.</p>
+				<p>Tables of search results can be downloaded in either tab-delimited or CSV format using via the 'Download' button. </p>
+								
+				<h3>Differential expression parameters</h3>
+				This controls how genes are classified as up-regulated or down-regulated. Default values are set as any significant level of up-regulation (&gt; 0) or down-regulation (&lt; 0). 
+				The default value for significance is set at a false discovery rate (FDR) of 0.05. All these parameters may be edited; changing these values can affect which clusters are 
+				selected and how the 'Expression' result column is populated.
+
+	        </uib-accordion-group>
 
 
 		</uib-accordion>
@@ -278,8 +361,9 @@
 				</div>
 		  </div>
 	</div>
+	<h4>Feedback</h4>
+	Contact <a href="http://www.gla.ac.uk/researchinstitutes/iii/staff/andrewshaw">Andrew Shaw</a> with questions about the research or <a href="http://www.gla.ac.uk/researchinstitutes/iii/staff/joshsinger/">Josh Singer</a> with any feedback on the web tool.
 
 </div>
-
 </body>
 </html>

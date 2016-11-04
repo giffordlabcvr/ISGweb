@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 
+import uk.ac.cvr.isgweb.SearchByNumberCriteria;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
 import uk.ac.cvr.isgweb.model.Species;
 import uk.ac.cvr.isgweb.model.SpeciesGene;
@@ -47,7 +48,7 @@ public class IsgDatabase {
 	
 	
 	private void readBigTable() {
-		String bigTableFileName = "Big_table_v3.4.txt";
+		String bigTableFileName = "Big_table_v3.6.1.xls";
 		logger.info("Reading "+bigTableFileName);
 		byte[] bigTableBytes = null;
 		try {
@@ -293,6 +294,50 @@ public class IsgDatabase {
 		return orthoClusterStream.collect(Collectors.toList());
 	}
 
+	public List<OrthoCluster> queryBySpeciesNumber(
+			SearchByNumberCriteria criteria,
+			GeneRegulationParams geneRegulationParams) {
+		return orthoClusterIndex.values().stream()
+			.filter(cluster -> {
+				int numPresent = 0;
+				int numUpRegulatedPresent = 0;
+				int numDownRegulatedPresent = 0;
+				Map<Species, List<SpeciesGene>> speciesToGenes = cluster.getSpeciesToGenes();
+				for(Species species: Species.values()) {
+					List<SpeciesGene> genes = speciesToGenes.get(species);
+					if(genes == null || genes.isEmpty()) {
+						continue;
+					} else {
+						numPresent++;
+					}
+					for(SpeciesGene gene: genes) {
+						if(geneRegulationParams.upregulatedGene(gene)) {
+							numUpRegulatedPresent++;
+							break;
+						}
+					}
+					for(SpeciesGene gene: genes) {
+						if(geneRegulationParams.downregulatedGene(gene)) {
+							numDownRegulatedPresent++;
+							break;
+						}
+					}
+				}
+				if(
+						numPresent < criteria.getPresentMin() ||
+						numPresent > criteria.getPresentMax() ||
+						numUpRegulatedPresent < criteria.getUpRegulatedPresentMin() ||
+						numUpRegulatedPresent > criteria.getUpRegulatedPresentMax() ||
+						numDownRegulatedPresent < criteria.getDownRegulatedPresentMin() ||
+						numDownRegulatedPresent > criteria.getDownRegulatedPresentMax()) {
+					return false;
+				}
+				return true;
+			})
+			.collect(Collectors.toList());
+	}
+
+	
 	public Map<String, List<SpeciesGene>> getEnsemblIdToSpeciesGenes() {
 		return ensemblIdToSpeciesGenes;
 	}
@@ -328,6 +373,7 @@ public class IsgDatabase {
 					.collect(Collectors.toSet()));
 		}
 	}
+
 
 	
 	

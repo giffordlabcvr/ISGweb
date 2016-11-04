@@ -13,6 +13,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 
+import uk.ac.cvr.isgweb.SearchByNumberCriteria;
 import uk.ac.cvr.isgweb.database.GeneRegulationParams;
 import uk.ac.cvr.isgweb.database.SpeciesCriterion;
 import uk.ac.cvr.isgweb.model.OrthoCluster;
@@ -104,6 +105,18 @@ public class JsonConversions {
 		return geneRegulationParams;
 	}
 
+	public static SearchByNumberCriteria searchByNumberCriteriaFromJsonObj(JsonObject searchByNumberCriteriaJsonObj) {
+		SearchByNumberCriteria searchByNumberCriteria = new SearchByNumberCriteria();
+		searchByNumberCriteria.setPresentMin(searchByNumberCriteriaJsonObj.getInt("presentMin"));
+		searchByNumberCriteria.setPresentMax(searchByNumberCriteriaJsonObj.getInt("presentMax"));
+		searchByNumberCriteria.setUpRegulatedPresentMin(searchByNumberCriteriaJsonObj.getInt("upRegulatedPresentMin"));
+		searchByNumberCriteria.setUpRegulatedPresentMax(searchByNumberCriteriaJsonObj.getInt("upRegulatedPresentMax"));
+		searchByNumberCriteria.setDownRegulatedPresentMin(searchByNumberCriteriaJsonObj.getInt("downRegulatedPresentMin"));
+		searchByNumberCriteria.setDownRegulatedPresentMax(searchByNumberCriteriaJsonObj.getInt("downRegulatedPresentMax"));
+		return searchByNumberCriteria;
+	}
+
+	
 	public static void hitsToJson(JsonGenerator jsonGenerator, 
 			IndexSearcher geneNameSearcher, ScoreDoc[] geneNameScoreDocs, 
 			IndexSearcher ensemblIdSearcher, ScoreDoc[] ensemblIdScoreDocs, int maxHits) {
@@ -167,6 +180,7 @@ public class JsonConversions {
 		}
 		jsonGenerator.writeEnd();
 	}
+
 
 	
 	

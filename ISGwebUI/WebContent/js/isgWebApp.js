@@ -27,7 +27,8 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 	  $scope.geneRegulationParams = null;
 	  
 	  $scope.searchByGeneOrEnsemblId = true;
-	  $scope.searchByPresenceExpression = false;
+	  $scope.searchByPresenceExpressionSpecific = false;
+	  $scope.searchByPresenceExpressionNumber = false;
 	  $scope.editGeneExpressionParams = false;
 	  
 	  $scope.geneOrEnsemblQuery = "";
@@ -50,6 +51,19 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 
 	  $scope.resetGeneRegulationParams();
 
+	  $scope.resetSearchByNumberCriteria = function() {
+		  var numSpecies = Object.keys($scope.species).length;
+		  $scope.searchByNumberCriteria = {
+				  presentMin: 0,
+				  presentMax: numSpecies,
+				  upRegulatedPresentMin: 0,
+				  upRegulatedPresentMax: numSpecies,
+				  downRegulatedPresentMin: 0,
+				  downRegulatedPresentMax: numSpecies
+		  };
+	  }
+	  
+	  
 	  $scope.myKeyDown = function(event) {
 		    if(event.keyCode == 13) {  
 		    	$scope.runGeneOrEnsemblQuery();
@@ -79,10 +93,10 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 		 if(!$scope.isNumeric(value)) {
 			 return defaultValue;
 		 }  
-		 if(min != null && value <= min) {
+		 if(min != null && value < min) {
 			 return defaultValue;
 		 }
-		 if(max != null && value >= max) {
+		 if(max != null && value > max) {
 			 return defaultValue;
 		 }
 		 return parseFloat(value);
@@ -181,6 +195,8 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 			  });
 			  console.info('species', $scope.species);
 			  $scope.resetSpeciesCriteria();
+			  $scope.resetSearchByNumberCriteria();
+
 			  
 	    })
 	    .error(function(data, status, headers, config) {
@@ -229,6 +245,20 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 
 		  $scope.geneRegulationParams.maxFDR = 
 			  Number($scope.validateParam(0, null, $scope.geneRegulationParams.maxFDR, 0.05));
+		  
+		  var numSpecies = Object.keys($scope.species).length;
+		  $scope.searchByNumberCriteria.presentMin = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.presentMin, 0));
+		  $scope.searchByNumberCriteria.presentMax = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.presentMax, numSpecies));
+		  $scope.searchByNumberCriteria.upRegulatedPresentMin = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.upRegulatedPresentMin, 0));
+		  $scope.searchByNumberCriteria.upRegulatedPresentMax = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.upRegulatedPresentMax, numSpecies));
+		  $scope.searchByNumberCriteria.downRegulatedPresentMin = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.downRegulatedPresentMin, 0));
+		  $scope.searchByNumberCriteria.downRegulatedPresentMax = 
+			  Number($scope.validateParam(0, numSpecies, $scope.searchByNumberCriteria.downRegulatedPresentMax, numSpecies));
 	  }
 	  
 	  
@@ -254,6 +284,29 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 		    });
 	  }
 
+	  $scope.runSearchByNumberQuery = function() {
+		  
+		  $scope.validateParams();
+		  
+		  $http.post("../../ISGwebServer/queryByNumber", {
+			  geneRegulationParams: $scope.geneRegulationParams,
+			  searchByNumberCriteria: $scope.searchByNumberCriteria
+			 })
+		    .success(function(data, status, headers, config) {
+				  console.info('success', data);
+				  $scope.orthoClusters = data.orthoClusters;
+				  if($scope.orthoClusters.length > 0) {
+					  $scope.firstPage();
+				  } else {
+					  $scope.resultRows = [];
+				  }
+		    })
+		    .error(function(data, status, headers, config) {
+				  console.info('error', data);
+		    });
+	  }
+
+	  
 	  $scope.runGeneOrEnsemblQuery = function() {
 
 		  $scope.validateParams();

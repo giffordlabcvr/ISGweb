@@ -125,7 +125,7 @@
                resourceName="UserDatabase"/>
       </Realm>
 
-      <Host name="localhost"  appBase="webapps"
+      <Host name="isg.data.cvr.ac.uk"  appBase="webapps"
             unpackWARs="true" autoDeploy="true">
 
         <!-- SingleSignOn valve, share authentication between web applications
@@ -141,6 +141,8 @@
                prefix="localhost_access_log." suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
+	      <Context docBase="ISGwebServer" path="/ISGwebServer" reloadable="true" source="org.eclipse.jst.j2ee.server:ISGwebServer"/>
+	      <Context docBase="ISGwebUI" path="" reloadable="true" source="org.eclipse.jst.jee.server:ISGwebUI"/></Host>
       </Host>
     </Engine>
   </Service>

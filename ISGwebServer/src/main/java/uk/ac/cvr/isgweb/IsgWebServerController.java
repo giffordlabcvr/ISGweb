@@ -71,11 +71,51 @@ public class IsgWebServerController {
 			addCacheDisablingHeaders(response);
 			return resultString;
 		} catch(Throwable th) {
-			logger.log(Level.SEVERE, "Error during POST /queryIsgs: "+th.getMessage(), th);
+			logger.log(Level.SEVERE, "Error during POST /queryBySpeciesCriteria: "+th.getMessage(), th);
 			throw th;
 		} 
 	} 
 
+	
+	@POST()
+	@Path("/queryByNumber")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String queryByNumber(String requestString, @Context HttpServletResponse response) {
+		try {
+			JsonObject requestObj = JsonUtils.stringToJsonObject(requestString);
+			logger.log(Level.INFO, "JSON Request:\n"+JsonUtils.prettyPrint(requestObj));
+
+			JsonObject geneRegulationParamsObj = ((JsonObject) requestObj.get("geneRegulationParams"));
+			GeneRegulationParams geneRegulationParams = JsonConversions.geneRegulationParamsFromJsonObj(geneRegulationParamsObj);
+
+			JsonObject searchByNumberCriteriaJsonObj = ((JsonObject) requestObj.get("searchByNumberCriteria"));
+			SearchByNumberCriteria searchByNumberCriteria = JsonConversions.searchByNumberCriteriaFromJsonObj(searchByNumberCriteriaJsonObj);
+
+			IsgDatabase isgDatabase = IsgDatabase.getInstance();
+			logger.log(Level.INFO, "Running query....");
+			List<OrthoCluster> resultOrthoClusters = isgDatabase.queryBySpeciesNumber(searchByNumberCriteria, geneRegulationParams);
+			logger.log(Level.INFO, "Query complete");
+
+			StringWriter stringWriter = new StringWriter();
+			JsonGenerator jsonGenerator = Json.createGenerator(stringWriter);
+			logger.log(Level.INFO, "Converting results to JSON...");
+			jsonGenerator.writeStartObject();
+			JsonConversions.orthoClustersToJsonArray(jsonGenerator, geneRegulationParams, resultOrthoClusters);
+			jsonGenerator.writeEnd();
+			jsonGenerator.flush();
+			logger.log(Level.INFO, "Results converted");
+			
+			String resultString = stringWriter.toString();
+			addCacheDisablingHeaders(response);
+			return resultString;
+		} catch(Throwable th) {
+			logger.log(Level.SEVERE, "Error during POST /queryByNumber: "+th.getMessage(), th);
+			throw th;
+		} 
+	} 
+
+	
 	
 	@POST()
 	@Path("/queryByGeneNameOrEnsemblId")
@@ -109,7 +149,7 @@ public class IsgWebServerController {
 			addCacheDisablingHeaders(response);
 			return resultString;
 		} catch(Throwable th) {
-			logger.log(Level.SEVERE, "Error during POST /queryIsgs: "+th.getMessage(), th);
+			logger.log(Level.SEVERE, "Error during POST /queryByGeneNameOrEnsemblId: "+th.getMessage(), th);
 			throw th;
 		} 
 	} 

@@ -34,15 +34,31 @@ task deployUiWarIsgWebAWS(dependsOn: ['war']) {
   inputs.file IsgWebUiWarFile
   outputs.file IsgWebUiWarTouchfile
   doLast {
-	  println "Uploading "+IsgWebUiWarFile.name
-	  ssh.run {
+	  println "Stopping Tomcat"
+	  taskSsh.run {
 	    session(remotes.isg_web_aws) {
-	      put from: IsgWebUiWarFile.absolutePath, into: '/tmp/ISGwebUI.war'
 	      execute 'sudo service tomcat7 stop'
+	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
+	      execute 'sleep 5'
+	    }
+	  }
+	  println "Uploading "+IsgWebUiWarFile.name
+	  taskSsh.run {
+	    session(remotes.isg_web_aws) {
+	      put from: warFile.absolutePath, into: '/tmp/ISGwebUI.war'
+	      execute 'sudo mkdir -p /var/lib/tomcat7/webapps'
+	      execute 'sudo chmod a+rwx /var/lib/tomcat7/webapps'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI'
 	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebUI.war'
-	      execute 'sudo mv /tmp/ISGwebUI.war /var/lib/tomcat7/webapps'
-	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/localhost/ISGwebUI'
+	      execute 'sudo mv /tmp/'+warFile.name+' /var/lib/tomcat7/webapps/ISGwebUI.war'
+	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/isg.data.cvr.ac.uk/ISGwebUI'
+	      execute 'sudo rm -rf /var/cache/tomcat7/Catalina/isg.data.cvr.ac.uk/ISGwebUI'
+	      
+	    }
+	  }
+	  println "Starting Tomcat"
+	  taskSsh.run {
+	    session(remotes.isg_web_aws) {
 	      execute 'sudo service tomcat7 start'
 	    }
 	  }
