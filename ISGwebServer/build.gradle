@@ -105,7 +105,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	      execute 'sleep 5'
 	    }
 	  }
-	  println "Uploading "+IsgWebUiWarFile.name
+	  println "Uploading "+IsgWsWarFile.name
 	  ssh.run {
 	    session(remotes.isg_web_aws) {
 	      put from: warFile.absolutePath, into: '/tmp/ISGwebServer.war'
