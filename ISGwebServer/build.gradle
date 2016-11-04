@@ -98,7 +98,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
   outputs.file IsgWsWarTouchfile
   doLast {
 	  println "Stopping Tomcat"
-	  taskSsh.run {
+	  ssh.run {
 	    session(remotes.isg_web_aws) {
 	      execute 'sudo service tomcat7 stop'
 	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
@@ -106,7 +106,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	    }
 	  }
 	  println "Uploading "+IsgWebUiWarFile.name
-	  taskSsh.run {
+	  ssh.run {
 	    session(remotes.isg_web_aws) {
 	      put from: warFile.absolutePath, into: '/tmp/ISGwebServer.war'
 	      execute 'sudo mkdir -p /var/lib/tomcat7/webapps'
@@ -120,7 +120,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	    }
 	  }
 	  println "Starting Tomcat"
-	  taskSsh.run {
+	  sh.run {
 	    session(remotes.isg_web_aws) {
 	      execute 'sudo service tomcat7 start'
 	    }
