@@ -11,23 +11,23 @@
 	<!-- https://github.com/webcomponents/webcomponentsjs/issues/400 -->
 	<link rel="stylesheet" href="bootstrap/css/bootstrap-yeti.css"/>
 	<link rel="stylesheet" href="css/style.css"/>
+	<link rel="stylesheet" href="angular-cookie-law/angular-cookie-law.min.css"/>
 
 	<!-- Polyfill, required for browsers that do not support link rel="import" -->
 	<script type="text/javascript" src="webcomponents/webcomponents-lite.min.js"></script>
 
-
 	<link rel="import" href="html/dependencies.html"/>
+	
 </head>
 <body>
 
+<cookie-law-banner message="This website uses Google Analytics First Party cookies for collecting usage statistics and some user-related data including geography and IP address. We use this facility to understand our users and improve our website. In order to use the website, please indicate that you consent to this." accept-text="I consent"></cookie-law-banner>
 
 <div class="container">
 
-
-
 	<div ng-controller="isgWebAppCtrl">
 		<h2>Orthologous Clusters of Interferon-Stimulated Genes</h2>
-		<div class="row">
+		<div class="row"">
 			<div class="col-md-8"
 			<p>
 			Interferon (IFN) is a cytokine secreted from cells upon detecting a pathogen. 
@@ -43,8 +43,8 @@
 				<p><a href="http://www.gla.ac.uk/researchinstitutes/iii/cvr/" target="_blank"><small>MRC-University of Glasgow Centre for Virus Research</small></a></p>
 			</div>
 		</div>
-		
-		<uib-accordion ng-cloak close-others="true">
+		<cookie-law-wait>
+			<uib-accordion ng-cloak close-others="true">
 			<uib-accordion-group is-open="searchByGeneOrEnsemblId">
 				<uib-accordion-heading>
 					Search clusters by gene name or ENSEMBL ID
@@ -288,12 +288,7 @@
 
 
 		</uib-accordion>
-
-				
-				
-		
-		
-				
+		</cookie-law-wait>
 			<div ng-cloak ng-show="resultRows">
 				<h2>Results</h2>
 				<div ng-show="resultRows.length == 0">No clusters found for this query</div>

@@ -1,4 +1,21 @@
-var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','ngAnimate','dialogs.main','autocomplete','ngFileSaver']);
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https:www.google-analytics.com/analytics.js','ga');
+	
+	  console.log("document.location.hostname", document.location.hostname);
+	  var trackingID;
+	  if(document.location.hostname.indexOf("isg.data.cvr.ac.uk") >= 0) {
+		  // production analytics account
+		  trackingID = 'UA-92347003-1';
+	  } else {
+		  // sandbox analytics account
+		  trackingID = 'UA-92330357-1';
+	  }
+	  ga('create', trackingID, 'auto');
+	  
+var isgWebApp = angular.module('isgWebApp', ['ui.bootstrap','ngAnimate','dialogs.main','autocomplete','ngFileSaver',
+                                             'angulartics', 'angulartics.google.analytics','angular-cookie-law']);
 
 
 var userAgent = detect.parse(navigator.userAgent);
@@ -16,8 +33,8 @@ console.log("userAgent.os.patch ", userAgent.os.patch );
 
 
 isgWebApp.controller('isgWebAppCtrl', 
-  [ '$scope', '$http', 'dialogs', 'FileSaver', 'Blob',
-function ($scope, $http, dialogs, FileSaver, Blob) {
+  [ '$scope', '$http', 'dialogs', 'FileSaver', 'Blob', '$analytics',
+function ($scope, $http, dialogs, FileSaver, Blob, $analytics) {
 
 	  $scope.resultRows = null;
 	  $scope.orthoClusters = null;
@@ -38,6 +55,9 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 	  $scope.lastClusterIndex = null;
 	  $scope.availableClustersPerPage = [10,25,100,500];
 	  $scope.clustersPerPage = $scope.availableClustersPerPage[0];
+	  
+	  $scope.downloadAnalyticsEvent = null;
+	  $scope.downloadAnalyticsLabel = null;
 	  
 	  $scope.updating = false;
 	  
@@ -213,6 +233,8 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 	  $scope.clearResults = function() {
 			 $scope.resultRows = null; 
 			 $scope.orthoClusters = null; 
+			 $scope.downloadAnalyticsEvent = null;
+			 $scope.downloadAnalyticsLabel = null;
 	  }
 	  
 	  $scope.downloadResults = function(fileType) {
@@ -220,6 +242,8 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 		  if(userAgent.os.family.indexOf("Windows") !== -1) {
 			  lineFeedStyle = "crlf";
 		  }
+		  
+		  $analytics.eventTrack($scope.downloadAnalyticsEvent, {  category: 'clusterDownload', label: $scope.downloadAnalyticsLabel });
 		  
 		  $http.post("../../ISGwebServer/clusterResultsAsFile", {
 			  orthoClusters: $scope.orthoClusters,
@@ -266,6 +290,44 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 		  
 		  $scope.validateParams();
 		  
+		  var analyticsLabel = "";
+		  if($scope.speciesCriteria.length == 0) {
+			  analyticsLabel = "noSpeciesMentioned";
+		  } else {
+			  var species = [];
+			  _.each($scope.speciesCriteria, function(speciesCriterion) {
+				  var presExp = "";
+				  if(speciesCriterion.requireAbsent) {
+					  presExp += "P-"
+				  }
+				  if(speciesCriterion.requirePresent) {
+					  presExp += "P+"
+				  }
+				  if(speciesCriterion.requireUpregulated) {
+					  presExp += "U+"
+				  }
+				  if(speciesCriterion.requireNotUpregulated) {
+					  presExp += "U-"
+				  }
+				  if(speciesCriterion.requireDownregulated) {
+					  presExp += "D+"
+				  }
+				  if(speciesCriterion.requireNotDownregulated) {
+					  presExp += "D-"
+				  }
+				  if(presExp.length > 0) {
+					  species.push(speciesCriterion.species+":"+presExp);
+				  }
+			  });
+			  _.sortBy(species, function(x) {return x;});
+			  analyticsLabel = "speciesMentioned:"+species.join();
+		  }
+		  
+		  $scope.downloadAnalyticsEvent = "specificSpeciesClusterDownload";
+		  $scope.downloadAnalyticsLabel = analyticsLabel;
+		  
+		  $analytics.eventTrack('specificSpeciesClusterQuery', {  category: 'clusterQuery', label: analyticsLabel });
+		  
 		  $http.post("../../ISGwebServer/queryBySpeciesCriteria", {
 			  geneRegulationParams: $scope.geneRegulationParams,
 			  speciesCriteria: $scope.speciesCriteria
@@ -287,6 +349,17 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 	  $scope.runSearchByNumberQuery = function() {
 		  
 		  $scope.validateParams();
+
+		  var cr = $scope.searchByNumberCriteria;
+		  
+		  var analyticsLabel = "present["+cr.presentMin+":"+cr.presentMax+"],"
+		  +"upReg["+cr.upRegulatedPresentMin+":"+cr.upRegulatedPresentMax+"],"
+		  +"downReg["+cr.downRegulatedPresentMin+":"+cr.downRegulatedPresentMax+"]";
+		  
+		  $scope.downloadAnalyticsEvent = "numberSpeciesClusterDownload";
+		  $scope.downloadAnalyticsLabel = analyticsLabel;
+
+		  $analytics.eventTrack('numberSpeciesClusterQuery', {  category: 'clusterQuery', label: analyticsLabel });
 		  
 		  $http.post("../../ISGwebServer/queryByNumber", {
 			  geneRegulationParams: $scope.geneRegulationParams,
@@ -311,6 +384,13 @@ function ($scope, $http, dialogs, FileSaver, Blob) {
 
 		  $scope.validateParams();
 
+		  var analyticsLabel = "geneQuery:"+$scope.geneOrEnsemblQuery;
+		  
+		  $scope.downloadAnalyticsEvent = "specificGeneClusterDownload";
+		  $scope.downloadAnalyticsLabel = analyticsLabel;
+		  
+		  $analytics.eventTrack('specificGeneClusterQuery', {  category: 'clusterQuery', label: analyticsLabel });
+		  
 		  $http.post("../../ISGwebServer/queryByGeneNameOrEnsemblId", {
 			  geneNameOrEnsemblId: $scope.geneOrEnsemblQuery,
 			  geneRegulationParams: $scope.geneRegulationParams
