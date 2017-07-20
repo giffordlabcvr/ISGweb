@@ -69,7 +69,7 @@ task deployServerXmlIsgWebAwsVm {
 	  println "Stopping Tomcat"
 	  ssh.run {
 	    session(remotes.isg_web_aws) {
-	      execute 'sudo service tomcat7 stop'
+	      execute 'sudo service tomcat7 stop; sleep 10s'
 	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
 	      execute 'sleep 5'
 	    }
@@ -116,7 +116,7 @@ task deployWarIsgWebAWS(dependsOn: ['war']) {
 	  println "Stopping Tomcat"
 	  ssh.run {
 	    session(remotes.isg_web_aws) {
-	      execute 'sudo service tomcat7 stop'
+	      execute 'sudo service tomcat7 stop; sleep 10s'
 	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
 	      execute 'sleep 5'
 	    }
