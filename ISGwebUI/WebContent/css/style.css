@@ -182,17 +182,17 @@ label:focus,
 
 
 .btn-default.active {
-    background-color: #72c4e7 !important;
-}
-
-.btn-default:visited {
     background-color: #58bde7 !important;
 }
 
-.btn-default:focus {
+.btn-default:visited {
     background-color: #9ad2e9 !important;
 }
 
+.btn-default:focus {
+    background-color: #b5d8e7 !important;
+}
+
 .btn-default:hover {
-    background-color: #9ad2e9 !important;
+    background-color: #72c4e7 !important;
 }
