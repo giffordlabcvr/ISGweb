@@ -53,22 +53,31 @@
 			<uib-accordion ng-cloak close-others="true">
 			<uib-accordion-group is-open="searchByGeneOrEnsemblId">
 				<uib-accordion-heading>
-					Search clusters by gene name or ENSEMBL ID
+					Search clusters by gene symbol or ENSEMBL ID
 					<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': searchByGeneOrEnsemblId, 'glyphicon-chevron-right': !searchByGeneOrEnsemblId}"></i>
 				</uib-accordion-heading>
 			
-				<table class="table table-nonfluid" style="margin: 0px;">
+				<table class="table table-nonfluid borderless" style="margin: 0px">
+					<thead>
+						<colgroup>
+							<col span="1" style="width: 40%;">
+							<col span="1" style="width: 60%;">
+						</colgroup>
+				
 						<tr>							
-								<td style="border-style: none;">
+								<td>
 									<autocomplete ng-model="geneOrEnsemblNameTyped" attr-input-class="geneEnsemblInput" attr-ul-class="geneEnsemblDropdown"
 										data="geneOrEnsemblSuggestions" on-type="updateGeneOrEnsemblSuggestions" ng-keydown="myKeyDown($event)"
-										on-select="updateSelectedGeneOrEnsembl" click-activation="true" no-auto-sort="true" attr-placeholder="Enter gene name or ENSEMBL ID"></autocomplete>
+										on-select="updateSelectedGeneOrEnsembl" click-activation="true" no-auto-sort="true" attr-placeholder="Enter gene symbol* or ENSEMBL ID"></autocomplete>
 								</td>
-						          <td style="border-style: none;">
+						          <td>
 									<button type="button" class="btn btn-default" ng-click="runGeneOrEnsemblQuery()">Run query</button>
-									
 						          </td>
 						</tr>
+						<tr>
+							<td>* Search using an HGNC approved gene symbol.<br/>Use the <a target="_blank" href="https://www.genenames.org/cgi-bin/symbol_checker">HGNC symbol checker</a> to look up approved gene symbols.</td>
+						</tr>
+							
 				</table>
 	        </uib-accordion-group>
 			<uib-accordion-group is-open="searchByPresenceExpressionSpecific">
@@ -265,8 +274,11 @@
 				<h3>Searching</h3>
 				This web tool allows users to search for orthlogous clusters based on various kinds of search criteria.
 				
-				<h5><b>Search clusters by gene name or ENSEMBL ID</b></h5>
-				Simply type in a gene name or ENSEMBL ID; the web tool will suggest matches from the database and return the cluster containing the specified gene.
+				<h5><b>Search clusters by gene symbol or ENSEMBL ID</b></h5>
+				Simply type in a gene symbol or ENSEMBL ID; the web tool will suggest matches from the database and return the cluster containing the specified gene.
+				Approved gene symobls provided by the <a target="_blank" href="https://www.genenames.org/">HUGO Gene Nomenclature Committee</a> (HGNC) are accepted. For example, to search for RIG-I you will need to use DDX58.
+				If you are unsure of the approved gene symbol, the <a target="_blank" href="https://www.genenames.org/cgi-bin/symbol_checker">HGNC symbol checker</a> can be used to check.</td>
+				
 				
 				<h5><b>Search clusters by presence / expression in specific species</b></h5>
 				Select clusters based on the presence and expression characteristics of genes in particular species. 
@@ -362,9 +374,30 @@
 				</div>
 		  </div>
 	</div>
-	<h4>Feedback</h4>
+	<h3>Feedback</h3>
 	Contact <a href="http://www.gla.ac.uk/researchinstitutes/iii/staff/andrewshaw">Andrew Shaw</a> with questions about the research or <a href="http://www.gla.ac.uk/researchinstitutes/iii/staff/joshsinger/">Josh Singer</a> with any feedback on the web tool.
-
+	<h3>Publication</h3>
+	<div class="row"">
+		<div class="col-md-3"
+			<p><img alt="PLOS Biology" width="100%" src="images/plosBiologyWithStripe.png"/></p>
+		</div>
+		<div class="col-md-8"
+			<p>
+			 <h4><b>Fundamental Properties of the Mammalian Innate Immune System Revealed by 
+			 	Multi-Species Comparison of Type I Interferon Responses</b></h4>
+			 </p>
+			<p class="small">
+			 Andrew E. Shaw, Joseph Hughes, Quan Gu, Abdelkader Behdenna, Josh Singer, Tristan Dennis, 
+			 Richard J. Orton, Mariana Varela, Robert J. Gifford, Sam J. Wilson and Massimo Palmarini
+			</p>
+			<p>
+			 Published December 1, 2017 : <a href="https://doi.org/10.1371/journal.pbio.2003583">https://doi.org/10.1371/journal.pbio.2003583</a>
+			</p>
+		</div>
+		<div class="col-md-1">
+			<a href="https://twitter.com/intent/tweet" class="twitter-share-button" data-size="large" data-text="Innate immune system properties revealed by multi-species comparison of interferon responses https://doi.org/10.1371/journal.pbio.2003583 Search and download #interferon stimulated genes from the paper here: " data-hashtags="PLOSBiology,virology,innate,immunity,evolution" data-related="" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+		</div>
+	</div>
 </div>
 </body>
 </html>
