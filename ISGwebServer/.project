@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>ISGwebServer</name>
-	<comment/>
+	<comment></comment>
 	<projects/>
 	<natures>
 		<nature>org.springsource.ide.eclipse.gradle.core.nature</nature>
@@ -30,4 +30,5 @@
 		</buildCommand>
 	</buildSpec>
 	<linkedResources/>
+	<filteredResources/>
 </projectDescription>

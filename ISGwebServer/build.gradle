@@ -1,95 +1,69 @@
 apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'war'
-apply plugin: 'org.hidetake.ssh'
+apply plugin: 'com.bmuschko.cargo'
 
 
-remotes {
-  isg_web_aws {
-    host = '52.48.126.136'
-    user = 'ubuntu'
-    identity = file('/Users/joshsinger/.ssh/isg_web.pem')
-  }
-}
+/*
+
+Some notes on preparing CentOS 7.x with Tomcat 7 (currently the default tomcat is 7.x)
+
+# basics:
+# installs tomcat 7.x, tomcat 7 is the default.
+% sudo yum install tomcat 
+
+# Tomcat manager 
+
+% sudo yum installtomcat-admin-webapps
+# add tomcat remote administrator user
+# /usr/share/tomcat/conf/tomcat-users.xml
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<user name="admin" password="somePassword" roles="manager-gui,manager-script" />
+
+# Securing tomcat manager. 
+# edit /var/lib/tomcat/webapps/manager/META-INF/context.xml
+# remove comment markers to around RemoteAddrValve to only allow office desktop IP address.
+
+
+# Ports
+
+# install authbind
+$ wget https://s3.amazonaws.com/aaronsilber/public/authbind-2.1.1-0.1.x86_64.rpm
+$ sudo rpm -Uvh authbind-2.1.1-0.1.x86_64.rpm
+
+# add port 80
+$ sudo firewall-cmd --permanent --add-port=80/tcp
+
+# get tomcat service to use authbind:
+# in /usr/lib/systemd/system/tomcat.service 
+# Comment out ExecStart=/usr/libexec/tomcat/server start
+# Replace with: 
+ExecStart=/usr/bin/authbind --deep /usr/libexec/tomcat/server start
+
+# in /usr/share/tomcat/conf/server.xml:
+# remove port 8080 connector
+# add port 80 connector 
+<Connector port="80" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+
+
+
+*/
 
 buildscript {
   repositories {
-    // for ssh-deploy stuff
     jcenter()
   }
   dependencies {
-    classpath group: 'org.hidetake', name: 'gradle-ssh-plugin', version: '1.1.3'
+	classpath group: 'com.bmuschko', name: 'gradle-cargo-plugin', version:'2.6'
   }
 }
 
 repositories {
     mavenCentral()
 }
-
-// assumes Ubuntu 14.04
-task initIsgWebAwsVm {
-  doLast {
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-
-	    	// stuff to manipulate package installer settings to allow non-interactive config
-		    execute 'sudo apt-get install -y python-software-properties debconf-utils'
-	    
-	    	// Oracle Java 8
-			// this repo contains Oracle Java installer 
-			execute 'sudo add-apt-repository -y ppa:webupd8team/java'
-			execute 'sudo apt-get update'
-			// accept oracle license
-			execute 'echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections'
-			// install java8 jdk
-			execute 'sudo apt-get install -y oracle-java8-installer'
-
-            // Apache Tomcat 7
-			execute 'sudo apt-get install -y tomcat7' 
-			// tell Tomcat where to find Java
-			execute "sudo sed -i 's/#JAVA_HOME.*/JAVA_HOME=\\/usr\\/lib\\/jvm\\/java-8-oracle\\/jre/g' /etc/default/tomcat7"
-
-			// Required for running Tomcat on port 80
-			execute "sudo apt-get install -y authbind"
-			execute "sudo sed -i 's/#AUTHBIND=no/AUTHBIND=yes/g' /etc/default/tomcat7"
-			// Increase Tomcat's Java heap to 1 Gb
-			execute "sudo sed -i 's/JAVA_OPTS.*/JAVA_OPTS=\"-Djava.awt.headless=true -Xmx1024m -XX:+UseConcMarkSweepGC\"/g' /etc/default/tomcat7"
-
-			execute "sudo touch /etc/authbind/byport/80"
-			execute "sudo chmod 500 /etc/authbind/byport/80"
-			execute "sudo chown tomcat7 /etc/authbind/byport/80"
-	    }
-	  }
-  }
-}
-
-// do this *after* deploying WARs for the first time.
-task deployServerXmlIsgWebAwsVm {
-  doLast {
-	  println "Stopping Tomcat"
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-	      execute 'sudo service tomcat7 stop; sleep 10s'
-	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
-	      execute 'sleep 5'
-	    }
-	  }
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-
-			put from: 'isg_web_aws/server.xml', into: '/home/ubuntu/server.xml'
-			execute "sudo cp /home/ubuntu/server.xml /etc/tomcat7/server.xml"
-			
-			// start Tomcat
-			execute 'sudo service tomcat7 start'
-
-	    }
-	  }
-  }
-}
-
-
-
 
 dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.4.1'
@@ -104,47 +78,27 @@ dependencies {
 	compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '6.1.0'
 	compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '6.1.0'
 	providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+	cargo group: 'org.codehaus.cargo', name: 'cargo-core-uberjar', version: '1.7.4'
+	cargo group: 'org.codehaus.cargo', name: 'cargo-ant', version: '1.7.4'
+}
+
+cargo {
+    containerId = 'tomcat7x'
+    port = 80
+
+    deployable {
+        context = '/ISGwebServer'
+    }
+
+    remote {
+        hostname = 'isg-data.cvr.gla.ac.uk'
+        // credentials in ~/.gradle/gradle.properties
+        username = System.getProperty("isg_data.tomcat.mgmt.username")
+        password = System.getProperty("isg_data.tomcat.mgmt.password")
+    }
 }
 
 
-task deployWarIsgWebAWS(dependsOn: ['war']) {
-  ext.IsgWsWarFile = new File(buildDir, '/libs/ISGwebServer.war')
-  ext.IsgWsWarTouchfile = new File(buildDir, '/deployWarIsgWebAWS.touchfile')
-  inputs.file IsgWsWarFile
-  outputs.file IsgWsWarTouchfile
-  doLast {
-	  println "Stopping Tomcat"
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-	      execute 'sudo service tomcat7 stop; sleep 10s'
-	      execute 'while true; do tcresult="$(sudo service tomcat7 status)" ; if [[ $tcresult != *"Tomcat servlet engine is running"* ]] ; then break ; fi ; sleep 0.5 ; echo "Tomcat is still running" ; done'
-	      execute 'sleep 5'
-	    }
-	  }
-	  println "Uploading "+IsgWsWarFile.name
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-	      put from: IsgWsWarFile.absolutePath, into: '/tmp/ISGwebServer.war'
-	      execute 'sudo mkdir -p /var/lib/tomcat7/webapps'
-	      execute 'sudo chmod a+rwx /var/lib/tomcat7/webapps'
-	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer'
-	      execute 'sudo rm -rf /var/lib/tomcat7/webapps/ISGwebServer.war'
-	      execute 'sudo mv /tmp/ISGwebServer.war /var/lib/tomcat7/webapps/ISGwebServer.war'
-	      execute 'sudo rm -rf /var/lib/tomcat7/work/Catalina/isg.data.cvr.ac.uk/ISGwebServer'
-	      execute 'sudo rm -rf /var/cache/tomcat7/Catalina/isg.data.cvr.ac.uk/ISGwebServer'
-	      
-	    }
-	  }
-	  println "Starting Tomcat"
-	  ssh.run {
-	    session(remotes.isg_web_aws) {
-	      execute 'sudo service tomcat7 start'
-	    }
-	  }
-	  IsgWsWarTouchfile.delete()
-	  buildDir.mkdirs()
-	  IsgWsWarTouchfile.createNewFile()
-  }
-}
+
 
 
