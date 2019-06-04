@@ -3,6 +3,8 @@ apply plugin: 'eclipse-wtp'
 apply plugin: 'war'
 apply plugin: 'com.bmuschko.cargo'
 
+// use gradle clean cargoRedeployRemote
+
 
 /*
 
