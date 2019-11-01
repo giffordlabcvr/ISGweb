@@ -48,7 +48,21 @@ ExecStart=/usr/bin/authbind --deep /usr/libexec/tomcat/server start
 # add port 80 connector 
 <Connector port="80" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               redirectPort="8443" />
+               redirectPort="8443" />cargo {
+    containerId = 'tomcat7x'
+    port = 80
+
+    deployable {
+        context = '/ISGwebServer'
+    }
+
+    remote {
+        hostname = 'isg-data.cvr.gla.ac.uk'
+        // credentials in ~/.gradle/gradle.properties
+        username = System.getProperty("isg_data.tomcat.mgmt.username")
+        password = System.getProperty("isg_data.tomcat.mgmt.password")
+    }
+}
 
 
 
@@ -84,21 +98,7 @@ dependencies {
 	cargo group: 'org.codehaus.cargo', name: 'cargo-ant', version: '1.7.4'
 }
 
-cargo {
-    containerId = 'tomcat7x'
-    port = 80
 
-    deployable {
-        context = '/ISGwebServer'
-    }
-
-    remote {
-        hostname = 'isg-data.cvr.gla.ac.uk'
-        // credentials in ~/.gradle/gradle.properties
-        username = System.getProperty("isg_data.tomcat.mgmt.username")
-        password = System.getProperty("isg_data.tomcat.mgmt.password")
-    }
-}
 
 
 
